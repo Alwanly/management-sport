@@ -172,9 +172,29 @@ func (db *DBService) Close() error {
 
 func MigrateIfNeed(db *gorm.DB) error {
 	log.Println("Running database migration if necessary...")
-	err := db.AutoMigrate(&model.Book{})
-	if err != nil {
-		return err
-	}
+	db.AutoMigrate(
+		&model.User{},
+		&model.Book{},
+		&model.Team{},
+		&model.Player{},
+		&model.Match{},
+		&model.Goal{},
+		&model.AuditLog{},
+	)
+
+	// Add unique constraint for team_id + shirt_number
+	db.Exec(`
+		CREATE UNIQUE INDEX IF NOT EXISTS idx_players_team_shirt 
+		ON players(team_id, shirt_number) 
+		WHERE deleted_at IS NULL
+	`)
+
+	// Add check constraint for match teams
+	db.Exec(`
+		ALTER TABLE matches 
+		ADD CONSTRAINT IF NOT EXISTS check_different_teams 
+		CHECK (home_team_id <> away_team_id)
+	`)
+
 	return nil
 }

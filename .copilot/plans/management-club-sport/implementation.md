@@ -827,7 +827,7 @@ func (h *Handler) Delete(c *gin.Context) {
 ## Step 1: Database Schema & Models
 
 ### Step 1.1: Update User Model with Role
-- [ ] Replace contents of `model/user.go`:
+- [x] Replace contents of `model/user.go`:
 
 ```go
 package model
@@ -860,7 +860,7 @@ type Users []User
 ```
 
 ### Step 1.2: Create Team Model
-- [ ] Create file `model/team.go`:
+- [x] Create file `model/team.go`:
 
 ```go
 package model
@@ -891,7 +891,7 @@ type Teams []Team
 ```
 
 ### Step 1.3: Create Player Model
-- [ ] Create file `model/player.go`:
+- [x] Create file `model/player.go`:
 
 ```go
 package model
@@ -935,7 +935,7 @@ type Players []Player
 ```
 
 ### Step 1.4: Create Match Model
-- [ ] Create file `model/match.go`:
+- [x] Create file `model/match.go`:
 
 ```go
 package model
@@ -979,7 +979,7 @@ type Matches []Match
 ```
 
 ### Step 1.5: Create Goal Model
-- [ ] Create file `model/goal.go`:
+- [x] Create file `model/goal.go`:
 
 ```go
 package model
@@ -1008,7 +1008,7 @@ type Goals []Goal
 ``
 
 ### Step 1.6: Create Audit Log Model
-- [ ] Create file `model/audit_log.go`:
+- [x] Create file `model/audit_log.go`:
 
 ```go
 package model
@@ -1045,7 +1045,7 @@ type AuditLogs []AuditLog
 ```
 
 ### Step 1.7: Update Database Migration to Include New Models
-- [ ] Update `pkg/database/postgres.go` to add new models to migration (find the `MigrateIfNeed` function and add new models):
+- [x] Update `pkg/database/postgres.go` to add new models to migration (find the `MigrateIfNeed` function and add new models):
 
 ```go
 func MigrateIfNeed(db *gorm.DB) {

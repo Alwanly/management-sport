@@ -9,8 +9,8 @@ import (
 	"github.com/Alwanly/management-sport/pkg/redis"
 	"github.com/Alwanly/management-sport/pkg/validator"
 	"github.com/gin-gonic/gin"
-	ginSwagger "github.com/swaggo/gin-swagger"
 	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.uber.org/zap"
 
 	_ "github.com/Alwanly/management-sport/api"

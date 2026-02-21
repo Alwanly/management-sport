@@ -18,11 +18,7 @@ type AuthMiddleware struct {
 	Basic authentication.IBasicAuthService
 }
 
-type AuthUserData struct {
-	UserID string `json:"userId"`
-}
-
-const LocalTokenKey = "user"
+// AuthUserData defined in pkg/middleware/type.go
 
 func NewAuthMiddleware(jwt authentication.IJwtService, basic authentication.IBasicAuthService) *AuthMiddleware {
 	return &AuthMiddleware{
@@ -56,6 +52,39 @@ func (a *AuthMiddleware) JwtAuth() gin.HandlerFunc {
 	}
 }
 
+func (a *AuthMiddleware) AdminAuth() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// First run JWT auth
+		a.JwtAuth()(c)
+
+		// If JWT auth failed, it would have aborted already
+		if c.IsAborted() {
+			return
+		}
+
+		// Get user data from context
+		authUserValue, exists := c.Get(LocalTokenKey)
+		if !exists {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "Access denied: admin role required"})
+			return
+		}
+
+		authUser, ok := authUserValue.(*AuthUserData)
+		if !ok {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "Access denied: invalid user data"})
+			return
+		}
+
+		// Check if user has admin role
+		if authUser.Role != "admin" {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "Access denied: admin role required"})
+			return
+		}
+
+		c.Next()
+	}
+}
+
 func (a *AuthMiddleware) BasicAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		auth := c.GetHeader("Authorization")
@@ -83,7 +112,11 @@ func responseUnauthorized(c *gin.Context, _ string, message ...string) {
 }
 
 func decodeAuthToken(auth authentication.JWTClaims) *AuthUserData {
-	return &AuthUserData{
+	userData := &AuthUserData{
 		UserID: auth["userId"].(string),
 	}
+	if role, ok := auth["role"].(string); ok {
+		userData.Role = role
+	}
+	return userData
 }

@@ -15,6 +15,7 @@ import (
 
 	_ "github.com/Alwanly/management-sport/api"
 	book_handler "github.com/Alwanly/management-sport/internal/example/handler"
+	"net/http"
 )
 
 type AppDeps struct {
@@ -88,6 +89,11 @@ func Bootstrap(d *AppDeps) *deps.App {
 
 	// Register handlers
 	book_handler.NewHandler(inst)
+	
+	// Admin-only test endpoint (for RBAC verification)
+	e.GET("/admin/test", inst.Auth.AdminAuth(), func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"message": "admin access ok"})
+	})
 
 	return inst
 }

@@ -76,3 +76,6 @@ tmp/
 
 # compiled debug file on local
 __debug*
+
+# copilot folder
+.copilot/

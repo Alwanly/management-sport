@@ -13,9 +13,16 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.uber.org/zap"
 
-	_ "github.com/Alwanly/management-sport/api"
-	book_handler "github.com/Alwanly/management-sport/internal/example/handler"
 	"net/http"
+
+	_ "github.com/Alwanly/management-sport/api"
+	audit_handler "github.com/Alwanly/management-sport/internal/audit/handler"
+	book_handler "github.com/Alwanly/management-sport/internal/example/handler"
+	goal_handler "github.com/Alwanly/management-sport/internal/goal/handler"
+	match_handler "github.com/Alwanly/management-sport/internal/match/handler"
+	player_handler "github.com/Alwanly/management-sport/internal/player/handler"
+	report_handler "github.com/Alwanly/management-sport/internal/report/handler"
+	team_handler "github.com/Alwanly/management-sport/internal/team/handler"
 )
 
 type AppDeps struct {
@@ -89,7 +96,13 @@ func Bootstrap(d *AppDeps) *deps.App {
 
 	// Register handlers
 	book_handler.NewHandler(inst)
-	
+	team_handler.NewHandler(inst)
+	player_handler.NewHandler(inst)
+	match_handler.NewHandler(inst)
+	goal_handler.NewHandler(inst)
+	audit_handler.NewHandler(inst)
+	report_handler.NewHandler(inst)
+
 	// Admin-only test endpoint (for RBAC verification)
 	e.GET("/admin/test", inst.Auth.AdminAuth(), func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"message": "admin access ok"})

@@ -8,9 +8,9 @@ import (
 	"math"
 	"time"
 
-	"github.com/Alwanly/go-codebase/model"
-	"github.com/Alwanly/go-codebase/pkg/logger"
-	"github.com/Alwanly/go-codebase/pkg/utils"
+	"github.com/Alwanly/management-sport/model"
+	"github.com/Alwanly/management-sport/pkg/logger"
+	"github.com/Alwanly/management-sport/pkg/utils"
 	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"

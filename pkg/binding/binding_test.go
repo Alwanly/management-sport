@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Alwanly/go-codebase/pkg/binding"
-	"github.com/Alwanly/go-codebase/pkg/middleware"
+	"github.com/Alwanly/management-sport/pkg/binding"
+	"github.com/Alwanly/management-sport/pkg/middleware"
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"

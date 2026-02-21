@@ -1,13 +1,13 @@
 package handler
 
 import (
-	"github.com/Alwanly/go-codebase/internal/example/repository"
-	"github.com/Alwanly/go-codebase/internal/example/schema"
-	"github.com/Alwanly/go-codebase/internal/example/usecase"
-	"github.com/Alwanly/go-codebase/pkg/binding"
-	"github.com/Alwanly/go-codebase/pkg/deps"
-	"github.com/Alwanly/go-codebase/pkg/logger"
-	"github.com/Alwanly/go-codebase/pkg/validator"
+	"github.com/Alwanly/management-sport/internal/example/repository"
+	"github.com/Alwanly/management-sport/internal/example/schema"
+	"github.com/Alwanly/management-sport/internal/example/usecase"
+	"github.com/Alwanly/management-sport/pkg/binding"
+	"github.com/Alwanly/management-sport/pkg/deps"
+	"github.com/Alwanly/management-sport/pkg/logger"
+	"github.com/Alwanly/management-sport/pkg/validator"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
 )

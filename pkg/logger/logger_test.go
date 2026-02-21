@@ -3,7 +3,7 @@ package logger_test
 import (
 	"testing"
 
-	"github.com/Alwanly/go-codebase/pkg/logger"
+	"github.com/Alwanly/management-sport/pkg/logger"
 	"github.com/stretchr/testify/assert"
 )
 

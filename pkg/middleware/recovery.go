@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"github.com/Alwanly/go-codebase/pkg/contract"
-	"github.com/Alwanly/go-codebase/pkg/wrapper"
+	"github.com/Alwanly/management-sport/pkg/contract"
+	"github.com/Alwanly/management-sport/pkg/wrapper"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
 )

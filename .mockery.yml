@@ -4,7 +4,7 @@ inpackage: false
 with-expecter: true
 dir: mocks/{{ replaceAll .InterfaceDirRelative "internal" "internal_" }}
 packages:
-    github.com/Alwanly/go-codebase:
+    github.com/Alwanly/management-sport:
         config:
             recursive: true
             exclude:

@@ -8,12 +8,12 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/Alwanly/go-codebase/config"
-	"github.com/Alwanly/go-codebase/pkg/authentication"
-	"github.com/Alwanly/go-codebase/pkg/database"
-	"github.com/Alwanly/go-codebase/pkg/logger"
-	"github.com/Alwanly/go-codebase/pkg/middleware"
-	"github.com/Alwanly/go-codebase/pkg/redis"
+	"github.com/Alwanly/management-sport/config"
+	"github.com/Alwanly/management-sport/pkg/authentication"
+	"github.com/Alwanly/management-sport/pkg/database"
+	"github.com/Alwanly/management-sport/pkg/logger"
+	"github.com/Alwanly/management-sport/pkg/middleware"
+	"github.com/Alwanly/management-sport/pkg/redis"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 )

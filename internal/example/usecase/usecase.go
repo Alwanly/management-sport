@@ -5,12 +5,12 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Alwanly/go-codebase/config"
-	"github.com/Alwanly/go-codebase/internal/example/repository"
-	"github.com/Alwanly/go-codebase/internal/example/schema"
-	"github.com/Alwanly/go-codebase/model"
-	"github.com/Alwanly/go-codebase/pkg/contract"
-	"github.com/Alwanly/go-codebase/pkg/wrapper"
+	"github.com/Alwanly/management-sport/config"
+	"github.com/Alwanly/management-sport/internal/example/repository"
+	"github.com/Alwanly/management-sport/internal/example/schema"
+	"github.com/Alwanly/management-sport/model"
+	"github.com/Alwanly/management-sport/pkg/contract"
+	"github.com/Alwanly/management-sport/pkg/wrapper"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 )

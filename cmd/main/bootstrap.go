@@ -3,21 +3,21 @@ package main
 import (
 	"encoding/json"
 
-	"github.com/Alwanly/go-codebase/config"
-	"github.com/Alwanly/go-codebase/pkg/database"
-	"github.com/Alwanly/go-codebase/pkg/deps"
-	"github.com/Alwanly/go-codebase/pkg/middleware"
-	"github.com/Alwanly/go-codebase/pkg/redis"
-	"github.com/Alwanly/go-codebase/pkg/validator"
+	"github.com/Alwanly/management-sport/config"
+	"github.com/Alwanly/management-sport/pkg/database"
+	"github.com/Alwanly/management-sport/pkg/deps"
+	"github.com/Alwanly/management-sport/pkg/middleware"
+	"github.com/Alwanly/management-sport/pkg/redis"
+	"github.com/Alwanly/management-sport/pkg/validator"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/swagger"
 	"go.uber.org/zap"
 
-	_ "github.com/Alwanly/go-codebase/api"
-	book_handler "github.com/Alwanly/go-codebase/internal/example/handler"
-	"github.com/Alwanly/go-codebase/pkg/health"
+	_ "github.com/Alwanly/management-sport/api"
+	book_handler "github.com/Alwanly/management-sport/internal/example/handler"
+	"github.com/Alwanly/management-sport/pkg/health"
 )
 
 type (

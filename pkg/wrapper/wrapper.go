@@ -4,7 +4,7 @@ import (
 	"math"
 	"net/http"
 
-	"github.com/Alwanly/go-codebase/pkg/contract"
+	"github.com/Alwanly/management-sport/pkg/contract"
 )
 
 type JSONResult struct {

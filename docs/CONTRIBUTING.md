@@ -156,9 +156,9 @@ package repository
 import (
 	"context"
 
-	"github.com/Alwanly/go-codebase/model"
-	"github.com/Alwanly/go-codebase/pkg/database"
-	"github.com/Alwanly/go-codebase/pkg/redis"
+	"github.com/Alwanly/management-sport/model"
+	"github.com/Alwanly/management-sport/pkg/database"
+	"github.com/Alwanly/management-sport/pkg/redis"
 )
 
 type IRepository interface {
@@ -221,10 +221,10 @@ import (
 	"context"
 	"time"
 
-	"github.com/Alwanly/go-codebase/config"
-	"github.com/Alwanly/go-codebase/internal/product/repository"
-	"github.com/Alwanly/go-codebase/internal/product/schema"
-	"github.com/Alwanly/go-codebase/model"
+	"github.com/Alwanly/management-sport/config"
+	"github.com/Alwanly/management-sport/internal/product/repository"
+	"github.com/Alwanly/management-sport/internal/product/schema"
+	"github.com/Alwanly/management-sport/model"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
@@ -342,13 +342,13 @@ package handler
 import (
 	"strconv"
 
-	"github.com/Alwanly/go-codebase/internal/product/repository"
-	"github.com/Alwanly/go-codebase/internal/product/schema"
-	"github.com/Alwanly/go-codebase/internal/product/usecase"
-	"github.com/Alwanly/go-codebase/pkg/binding"
-	"github.com/Alwanly/go-codebase/pkg/contract"
-	"github.com/Alwanly/go-codebase/pkg/deps"
-	"github.com/Alwanly/go-codebase/pkg/wrapper"
+	"github.com/Alwanly/management-sport/internal/product/repository"
+	"github.com/Alwanly/management-sport/internal/product/schema"
+	"github.com/Alwanly/management-sport/internal/product/usecase"
+	"github.com/Alwanly/management-sport/pkg/binding"
+	"github.com/Alwanly/management-sport/pkg/contract"
+	"github.com/Alwanly/management-sport/pkg/deps"
+	"github.com/Alwanly/management-sport/pkg/wrapper"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
 )
@@ -542,7 +542,7 @@ Edit `cmd/main/bootstrap.go`:
 ```go
 import (
 	// ... other imports
-	product_handler "github.com/Alwanly/go-codebase/internal/product/handler"
+	product_handler "github.com/Alwanly/management-sport/internal/product/handler"
 )
 
 // In Bootstrap function:
@@ -679,7 +679,7 @@ go test ./internal/product/...
 
 ## Questions?
 
-- Check existing [issues](https://github.com/Alwanly/go-codebase/issues)
+- Check existing [issues](https://github.com/Alwanly/management-sport/issues)
 - Read the [documentation](../README.md)
 - Ask in discussions
 

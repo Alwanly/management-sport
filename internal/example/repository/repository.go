@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Alwanly/go-codebase/internal/example/schema"
-	"github.com/Alwanly/go-codebase/model"
-	"github.com/Alwanly/go-codebase/pkg/database"
-	"github.com/Alwanly/go-codebase/pkg/redis"
-	"github.com/Alwanly/go-codebase/pkg/utils"
+	"github.com/Alwanly/management-sport/internal/example/schema"
+	"github.com/Alwanly/management-sport/model"
+	"github.com/Alwanly/management-sport/pkg/database"
+	"github.com/Alwanly/management-sport/pkg/redis"
+	"github.com/Alwanly/management-sport/pkg/utils"
 )
 
 const ContextName = "Internal.User.Repository"

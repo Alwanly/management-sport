@@ -100,7 +100,7 @@ go-codebase/
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/Alwanly/go-codebase.git
+   git clone https://github.com/Alwanly/management-sport.git
    cd go-codebase
    ```
 

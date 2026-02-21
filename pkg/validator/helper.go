@@ -3,9 +3,9 @@ package validator
 import (
 	"net/http"
 
-	"github.com/Alwanly/go-codebase/pkg/contract"
-	"github.com/Alwanly/go-codebase/pkg/logger"
-	"github.com/Alwanly/go-codebase/pkg/wrapper"
+	"github.com/Alwanly/management-sport/pkg/contract"
+	"github.com/Alwanly/management-sport/pkg/logger"
+	"github.com/Alwanly/management-sport/pkg/wrapper"
 	"go.uber.org/zap"
 )
 

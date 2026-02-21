@@ -1,11 +1,11 @@
 package deps
 
 import (
-	"github.com/Alwanly/go-codebase/config"
-	"github.com/Alwanly/go-codebase/pkg/database"
-	"github.com/Alwanly/go-codebase/pkg/middleware"
-	"github.com/Alwanly/go-codebase/pkg/redis"
-	"github.com/Alwanly/go-codebase/pkg/validator"
+	"github.com/Alwanly/management-sport/config"
+	"github.com/Alwanly/management-sport/pkg/database"
+	"github.com/Alwanly/management-sport/pkg/middleware"
+	"github.com/Alwanly/management-sport/pkg/redis"
+	"github.com/Alwanly/management-sport/pkg/validator"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
 )

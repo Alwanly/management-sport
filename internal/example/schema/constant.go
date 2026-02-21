@@ -1,8 +1,8 @@
 package schema
 
 import (
-	"github.com/Alwanly/go-codebase/model"
-	"github.com/Alwanly/go-codebase/pkg/middleware"
+	"github.com/Alwanly/management-sport/model"
+	"github.com/Alwanly/management-sport/pkg/middleware"
 )
 
 type RequestBookCreate struct {

@@ -1,10 +1,10 @@
-module github.com/Alwanly/go-codebase
+module github.com/Alwanly/management-sport
 
 go 1.23
 
 replace (
-	github.com/Alwanly/go-codebase/config => ./config
-	github.com/Alwanly/go-codebase/pkg => ./pkg
+	github.com/Alwanly/management-sport/config => ./config
+	github.com/Alwanly/management-sport/pkg => ./pkg
 )
 
 require (

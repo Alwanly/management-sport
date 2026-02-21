@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Alwanly/go-codebase/pkg/authentication"
+	"github.com/Alwanly/management-sport/pkg/authentication"
 	"github.com/gofiber/fiber/v2"
 )
 

@@ -3,10 +3,11 @@ package main
 import (
 	"context"
 	"fmt"
-
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/Alwanly/management-sport/config"
 	"github.com/Alwanly/management-sport/pkg/authentication"
@@ -57,7 +58,6 @@ func main() {
 		PostgresMaxOpenConnections: cfg.PostgresMaxOpenConnections,
 		PostgresMaxIdleConnections: cfg.PostgresMaxIdleConnections,
 	}
-
 	db, err := database.NewPostgres(&dbConfig)
 	if err != nil {
 		l.Error("Failed to initialize database", zap.Error(err))
@@ -75,8 +75,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Setup middleware
-	jwtConfig := middleware.SetJwtAuth(&authentication.JWTConfig{
+	// Setup JWT middleware
+	jwtService := authentication.NewJWTService(&authentication.JWTConfig{
 		PrivateKey:     cfg.PrivateKey,
 		PublicKey:      cfg.PublicKey,
 		Audience:       cfg.JwtAudience,
@@ -84,18 +84,16 @@ func main() {
 		ExpirationTime: cfg.JwtExpirationTime,
 		RefreshTime:    cfg.JwtRefreshTime,
 	})
-	basicAuthConfig := middleware.SetBasicAuth(&authentication.BasicAuthTConfig{
+
+	// Setup Basic Auth middleware
+	basicAuthService := authentication.NewBasicAuthService(&authentication.BasicAuthTConfig{
 		Username: cfg.BasicAuthUsername,
 		Password: cfg.BasicAuthPassword,
 	})
 
-	authMiddleware := middleware.NewAuthMiddleware(jwtConfig, basicAuthConfig)
-	if authMiddleware == nil {
-		l.Error("Failed to create auth middleware")
-		os.Exit(1)
-	}
+	authMiddleware := middleware.NewAuthMiddleware(jwtService, basicAuthService)
 
-	// Create app
+	// Bootstrap application
 	app := Bootstrap(&AppDeps{
 		Config: &cfg,
 		Logger: globalLogger,
@@ -104,31 +102,38 @@ func main() {
 		Auth:   authMiddleware,
 	})
 
-	// Register health check
-
-	//--------------------- Bootstrap Application ---------------------
+	// Create HTTP server for graceful shutdown
+	srv := &http.Server{
+		Addr:    fmt.Sprintf(":%d", cfg.Port),
+		Handler: app.Gin,
+	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 	g, gCtx := errgroup.WithContext(ctx)
 
-	// run http server
+	// Start server
 	g.Go(func() error {
 		l.Info("Starting server...", zap.Int("port", cfg.Port))
-		return app.Fiber.Listen(fmt.Sprintf(":%d", cfg.Port))
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			l.Error("Server error", zap.Error(err))
+			return err
+		}
+		return nil
 	})
 
-	// graceful shutdown
+	// Graceful shutdown
 	g.Go(func() error {
 		<-gCtx.Done()
 		l.Info("Gracefully shutting down...")
 
-		l.Info("Server gracefully shutdown")
-		if err := app.Fiber.Shutdown(); err != nil {
+		shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer shutdownCancel()
+
+		if err := srv.Shutdown(shutdownCtx); err != nil {
 			l.Error("Cannot shutdown server", zap.Error(err))
 			return err
 		}
 
-		l.Info("Closing database connection")
 		if err := app.DB.Close(); err != nil {
 			l.Error("Cannot close database connection", zap.Error(err))
 			return err
@@ -137,21 +142,18 @@ func main() {
 		return nil
 	})
 
-	// listen for interrupt signal
+	// Signal handler
 	go func() {
 		c := make(chan os.Signal, 1)
-
 		signal.Notify(c, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
-		l.Info("Listening for OS signal...")
 		<-c
-
-		// cancel context
-		l.Info("Received OS signal, canceling context...")
+		l.Info("Received shutdown signal")
 		cancel()
 	}()
 
-	// wait for all goroutines to finish
 	if err := g.Wait(); err != nil {
 		fmt.Printf("Error: %v\n", err)
 	}
+
+	l.Info("Server stopped")
 }

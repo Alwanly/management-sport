@@ -1,88 +1,92 @@
 package main
 
 import (
-	"encoding/json"
-
 	"github.com/Alwanly/management-sport/config"
 	"github.com/Alwanly/management-sport/pkg/database"
 	"github.com/Alwanly/management-sport/pkg/deps"
+	"github.com/Alwanly/management-sport/pkg/health"
 	"github.com/Alwanly/management-sport/pkg/middleware"
 	"github.com/Alwanly/management-sport/pkg/redis"
 	"github.com/Alwanly/management-sport/pkg/validator"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/recover"
-	"github.com/gofiber/swagger"
+	"github.com/gin-gonic/gin"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	swaggerFiles "github.com/swaggo/files"
 	"go.uber.org/zap"
 
 	_ "github.com/Alwanly/management-sport/api"
 	book_handler "github.com/Alwanly/management-sport/internal/example/handler"
-	"github.com/Alwanly/management-sport/pkg/health"
 )
 
-type (
-	AppDeps struct {
-		Config *config.GlobalConfig
-		Logger *zap.Logger
-		DB     *database.DBService
-		Redis  *redis.Service
-		Auth   *middleware.AuthMiddleware
-	}
-)
+type AppDeps struct {
+	Config *config.GlobalConfig
+	Logger *zap.Logger
+	DB     *database.DBService
+	Redis  *redis.Service
+	Auth   *middleware.AuthMiddleware
+}
 
 var inst *deps.App
 
-// @title Fiber Example API
+// @title Management Sport API
 // @version 1.0
-// @description This is a sample Swagger example for Fiber with Basic Auth and JWT
-// @host localhost:8080
+// @description This is a Management Sport API server with Gin framework
+// @host localhost:9000
 // @BasePath /
-
 // @securityDefinitions.basic BasicAuth
-// @securityDefinitions.apiKey Bearer
+// @securityDefinitions.apikey BearerAuth
 // @in header
 // @name Authorization
 func Bootstrap(d *AppDeps) *deps.App {
-	// create http server
-	e := fiber.New(fiber.Config{
-		DisableStartupMessage: true,
-		JSONEncoder:           json.Marshal,
-		JSONDecoder:           json.Unmarshal,
-		ErrorHandler:          middleware.Recover(d.Logger),
-	})
-
-	// register middleware
-	e.Use(cors.New())
-	e.Use(recover.New())
-
-	// create validator
-	v, _ := validator.NewValidator()
-
-	// add swagger docs if in development mode
-	if d.Config.Environment == "development" {
-		e.Static("/swagger.yaml", "./api/swagger.yaml")
-		e.Get("/swagger/*", swagger.HandlerDefault)
+	// Set Gin mode
+	if d.Config.Environment == "production" {
+		gin.SetMode(gin.ReleaseMode)
 	}
 
-	// set app instance
+	// Initialize Gin
+	e := gin.New()
+
+	// Add middleware
+	e.Use(gin.Logger())
+	e.Use(middleware.Recover(d.Logger))
+	e.Use(func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+		c.Next()
+	})
+
+	v, _ := validator.NewValidator()
+
+	// Swagger
+	if d.Config.Environment == "development" {
+		e.Static("/swagger.yaml", "./api/swagger.yaml")
+		e.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	}
+
 	inst = &deps.App{
 		Config:    d.Config,
 		Logger:    d.Logger,
 		DB:        d.DB,
 		Redis:     d.Redis,
 		Auth:      d.Auth,
-		Fiber:     e,
+		Gin:       e,
 		Validator: v,
 	}
+
+	// Run migrations
 	database.MigrateIfNeed(inst.DB.Gorm)
 
-	// Register health check endpoints
+	// Health endpoints
 	healthHandler := health.NewHandler(d.Config.ServiceName, d.Config.ServiceVersion)
-	e.Get("/health", healthHandler.Check)
-	e.Get("/ready", healthHandler.Readiness)
-	e.Get("/live", healthHandler.Liveness)
+	e.GET("/health", healthHandler.Check)
+	e.GET("/ready", healthHandler.Readiness)
+	e.GET("/live", healthHandler.Liveness)
 
-	// Register business handlers
+	// Register handlers
 	book_handler.NewHandler(inst)
 
 	return inst

@@ -1,80 +1,49 @@
 package health
 
 import (
-	"time"
+	"net/http"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gin-gonic/gin"
 )
 
-// Response represents the health check response
-type Response struct {
-	Status    string    `json:"status"`
-	Timestamp time.Time `json:"timestamp"`
-	Service   string    `json:"service"`
-	Version   string    `json:"version"`
+type Health struct {
+	ServiceName    string `json:"service"`
+	ServiceVersion string `json:"version"`
+	Status         string `json:"status"`
 }
 
-// Handler handles health check requests
-type Handler struct {
-	serviceName    string
-	serviceVersion string
+type HealthHandler struct {
+	ServiceName    string
+	ServiceVersion string
 }
 
-// NewHandler creates a new health check handler
-func NewHandler(serviceName, serviceVersion string) *Handler {
-	return &Handler{
-		serviceName:    serviceName,
-		serviceVersion: serviceVersion,
+func NewHandler(serviceName, serviceVersion string) *HealthHandler {
+	return &HealthHandler{
+		ServiceName:    serviceName,
+		ServiceVersion: serviceVersion,
 	}
 }
 
-// Check godoc
-// @Summary Health check
-// @Description Check if the service is healthy
-// @Tags health
-// @Accept json
-// @Produce json
-// @Success 200 {object} Response
-// @Router /health [get]
-func (h *Handler) Check(c *fiber.Ctx) error {
-	return c.JSON(Response{
-		Status:    "ok",
-		Timestamp: time.Now(),
-		Service:   h.serviceName,
-		Version:   h.serviceVersion,
+func (h *HealthHandler) Check(c *gin.Context) {
+	c.JSON(http.StatusOK, Health{
+		ServiceName:    h.ServiceName,
+		ServiceVersion: h.ServiceVersion,
+		Status:         "ok",
 	})
 }
 
-// Readiness godoc
-// @Summary Readiness check
-// @Description Check if the service is ready to accept requests
-// @Tags health
-// @Accept json
-// @Produce json
-// @Success 200 {object} Response
-// @Router /ready [get]
-func (h *Handler) Readiness(c *fiber.Ctx) error {
-	return c.JSON(Response{
-		Status:    "ready",
-		Timestamp: time.Now(),
-		Service:   h.serviceName,
-		Version:   h.serviceVersion,
+func (h *HealthHandler) Readiness(c *gin.Context) {
+	c.JSON(http.StatusOK, Health{
+		ServiceName:    h.ServiceName,
+		ServiceVersion: h.ServiceVersion,
+		Status:         "ready",
 	})
 }
 
-// Liveness godoc
-// @Summary Liveness check
-// @Description Check if the service is alive
-// @Tags health
-// @Accept json
-// @Produce json
-// @Success 200 {object} Response
-// @Router /live [get]
-func (h *Handler) Liveness(c *fiber.Ctx) error {
-	return c.JSON(Response{
-		Status:    "alive",
-		Timestamp: time.Now(),
-		Service:   h.serviceName,
-		Version:   h.serviceVersion,
+func (h *HealthHandler) Liveness(c *gin.Context) {
+	c.JSON(http.StatusOK, Health{
+		ServiceName:    h.ServiceName,
+		ServiceVersion: h.ServiceVersion,
+		Status:         "alive",
 	})
 }

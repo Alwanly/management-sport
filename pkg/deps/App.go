@@ -6,7 +6,7 @@ import (
 	"github.com/Alwanly/management-sport/pkg/middleware"
 	"github.com/Alwanly/management-sport/pkg/redis"
 	"github.com/Alwanly/management-sport/pkg/validator"
-	"github.com/gofiber/fiber/v2"
+	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
@@ -19,5 +19,5 @@ type App struct {
 	Validator validator.IValidatorService
 
 	// APIs
-	Fiber *fiber.App
+	Gin *gin.Engine
 }

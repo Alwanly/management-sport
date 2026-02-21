@@ -1,20 +1,33 @@
 package middleware
 
 import (
+	"net/http"
+
 	"github.com/Alwanly/management-sport/pkg/contract"
+	"github.com/Alwanly/management-sport/pkg/logger"
 	"github.com/Alwanly/management-sport/pkg/wrapper"
-	"github.com/gofiber/fiber/v2"
+	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
-func Recover(l *zap.Logger) fiber.ErrorHandler {
-	return func(ctx *fiber.Ctx, err error) error {
-		l.Error("Unexpected error", zap.Error(err), zap.String("method", ctx.Method()), zap.String("url", ctx.Path()))
-		return ctx.Status(fiber.StatusInternalServerError).
-			JSON(wrapper.JSONResult{
-				Code:       fiber.StatusInternalServerError,
-				StatusCode: contract.StatusCodeInternalServerError,
-				Message:    "Internal server error",
-			})
+const ContextNameRecovery = "Middleware.Recovery"
+
+func Recover(log *zap.Logger) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		defer func() {
+			if err := recover(); err != nil {
+				l := logger.WithID(log, ContextNameRecovery, "Recover")
+				l.Error("Panic recovered", zap.Any("error", err), zap.Stack("stack"))
+
+				result := wrapper.ResponseFailed(
+					http.StatusInternalServerError,
+					contract.StatusCodeInternalServerError,
+					"Internal server error",
+					nil,
+				)
+				c.AbortWithStatusJSON(result.Code, result)
+			}
+		}()
+		c.Next()
 	}
 }

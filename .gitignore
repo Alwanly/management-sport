@@ -78,4 +78,4 @@ tmp/
 __debug*
 
 # copilot folder
-.copilot/*/*
+.copilot/

@@ -1,13 +1,10 @@
 package config
 
 type GlobalConfig struct {
-	// global config
-	Environment string `mapstructure:"ENV"`
-	Debug       bool   `mapstructure:"DEBUG"`
-	Port        int    `mapstructure:"PORT"`
-	PortGrpc    int    `mapstructure:"PORT_GRPC"`
-	LogLevel    string `mapstructure:"LOG_LEVEL"`
-
+	Environment    string `mapstructure:"ENV"`
+	Debug          bool   `mapstructure:"DEBUG"`
+	Port           int    `mapstructure:"PORT"`
+	LogLevel       string `mapstructure:"LOG_LEVEL"`
 	ServiceName    string `mapstructure:"SERVICE_NAME"`
 	ServiceVersion string `mapstructure:"SERVICE_VERSION"`
 
@@ -18,9 +15,7 @@ type GlobalConfig struct {
 	JwtAudience       string `mapstructure:"JWT_AUDIENCE"`
 	JwtExpirationTime int    `mapstructure:"JWT_EXPIRATION"`
 	JwtRefreshTime    int    `mapstructure:"JWT_REFRESH_EXPIRATION"`
-
-	// JWT secret key for HMAC signing
-	JwtSecret string `mapstructure:"JWT_SECRET"`
+	JwtSecret         string `mapstructure:"JWT_SECRET"`
 
 	// Database
 	PostgresURI                string `mapstructure:"POSTGRES_URI"`
@@ -29,4 +24,9 @@ type GlobalConfig struct {
 
 	// Redis
 	RedisURI string `mapstructure:"REDIS_URI"`
+
+	// File Upload
+	UploadDirectory   string `mapstructure:"UPLOAD_DIRECTORY"`
+	MaxUploadSize     int64  `mapstructure:"MAX_UPLOAD_SIZE"`
+	AllowedImageTypes string `mapstructure:"ALLOWED_IMAGE_TYPES"`
 }

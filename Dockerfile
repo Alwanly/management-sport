@@ -52,5 +52,11 @@ USER appuser
 # Expose port
 EXPOSE 9000
 
+# Create upload directories
+RUN mkdir -p /app/images/logo_teams
+
+# Ensure proper permissions
+RUN chmod -R 755 /app/images
+
 # Run the application
 CMD ["/app/server"]

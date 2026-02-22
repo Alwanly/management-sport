@@ -1,11 +1,1660 @@
 basePath: /
-host: localhost:9000
+definitions:
+  contract.StatusCode:
+    enum:
+    - "000000"
+    - "000001"
+    - "000002"
+    - "000011"
+    - "000012"
+    - "000013"
+    - "000014"
+    type: string
+    x-enum-varnames:
+    - StatusCodeSuccess
+    - StatusCodeBindingFailed
+    - StatusCodeValidationFailed
+    - StatusCodeUnauthorized
+    - StatusCodeUserOrPasswordInvalid
+    - StatusCodeInternalServerError
+    - StatusCodeSequenceError
+  middleware.AuthUserData:
+    properties:
+      role:
+        type: string
+      userId:
+        type: string
+    type: object
+  schema.RequestAdminLogin:
+    properties:
+      password:
+        minLength: 6
+        type: string
+      username:
+        maxLength: 255
+        minLength: 3
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  schema.RequestBookCreate:
+    properties:
+      authUserData:
+        $ref: '#/definitions/middleware.AuthUserData'
+      author:
+        type: string
+      title:
+        maxLength: 255
+        minLength: 3
+        type: string
+    required:
+    - author
+    - title
+    type: object
+  schema.RequestBookUpdate:
+    properties:
+      authUserData:
+        $ref: '#/definitions/middleware.AuthUserData'
+      author:
+        type: string
+      id:
+        type: string
+      title:
+        maxLength: 255
+        minLength: 3
+        type: string
+    required:
+    - author
+    - id
+    - title
+    type: object
+  schema.RequestGoalCreate:
+    properties:
+      authUserData:
+        $ref: '#/definitions/middleware.AuthUserData'
+      match_id:
+        type: string
+      minute_scored:
+        minimum: 0
+        type: integer
+      player_id:
+        type: string
+    required:
+    - match_id
+    - minute_scored
+    - player_id
+    type: object
+  schema.RequestLogin:
+    properties:
+      password:
+        minLength: 6
+        type: string
+      username:
+        maxLength: 255
+        minLength: 3
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  schema.RequestMatchCreate:
+    properties:
+      authUserData:
+        $ref: '#/definitions/middleware.AuthUserData'
+      away_team_id:
+        type: string
+      home_team_id:
+        type: string
+      match_date:
+        type: string
+      match_time:
+        type: string
+    required:
+    - away_team_id
+    - home_team_id
+    - match_date
+    - match_time
+    type: object
+  schema.RequestMatchUpdate:
+    properties:
+      authUserData:
+        $ref: '#/definitions/middleware.AuthUserData'
+      away_score:
+        minimum: 0
+        type: integer
+      away_team_id:
+        type: string
+      home_score:
+        minimum: 0
+        type: integer
+      home_team_id:
+        type: string
+      id:
+        type: string
+      match_date:
+        type: string
+      match_time:
+        type: string
+      status:
+        enum:
+        - scheduled
+        - ongoing
+        - finished
+        type: string
+    required:
+    - away_team_id
+    - home_team_id
+    - id
+    - match_date
+    - match_time
+    type: object
+  schema.RequestPlayerCreate:
+    properties:
+      authUserData:
+        $ref: '#/definitions/middleware.AuthUserData'
+      height_cm:
+        minimum: 0
+        type: integer
+      name:
+        maxLength: 255
+        minLength: 1
+        type: string
+      position:
+        enum:
+        - GK
+        - CB
+        - LB
+        - DM
+        - CM
+        - RM
+        - LM
+        - RW
+        - LW
+        - CF
+        type: string
+      shirt_number:
+        maximum: 99
+        minimum: 1
+        type: integer
+      team_id:
+        type: string
+      weight_kg:
+        minimum: 0
+        type: integer
+    required:
+    - name
+    - position
+    - shirt_number
+    - team_id
+    type: object
+  schema.RequestPlayerUpdate:
+    properties:
+      authUserData:
+        $ref: '#/definitions/middleware.AuthUserData'
+      height_cm:
+        minimum: 0
+        type: integer
+      id:
+        type: string
+      name:
+        maxLength: 255
+        minLength: 1
+        type: string
+      position:
+        enum:
+        - GK
+        - DF
+        - MF
+        - FW
+        type: string
+      shirt_number:
+        maximum: 99
+        minimum: 1
+        type: integer
+      weight_kg:
+        minimum: 0
+        type: integer
+    required:
+    - id
+    - name
+    - position
+    - shirt_number
+    type: object
+  schema.RequestRegister:
+    properties:
+      password:
+        minLength: 6
+        type: string
+      username:
+        maxLength: 255
+        minLength: 3
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  schema.RequestTeamCreate:
+    properties:
+      '-':
+        $ref: '#/definitions/middleware.AuthUserData'
+      address:
+        maxLength: 500
+        type: string
+      city:
+        maxLength: 255
+        type: string
+      founded_year:
+        maximum: 2100
+        minimum: 1800
+        type: integer
+      name:
+        maxLength: 255
+        minLength: 3
+        type: string
+    required:
+    - name
+    type: object
+  schema.RequestTeamUpdate:
+    properties:
+      '-':
+        $ref: '#/definitions/middleware.AuthUserData'
+      address:
+        maxLength: 500
+        type: string
+      city:
+        maxLength: 255
+        type: string
+      founded_year:
+        maximum: 2100
+        minimum: 1800
+        type: integer
+      id:
+        type: string
+      name:
+        maxLength: 255
+        minLength: 3
+        type: string
+    required:
+    - id
+    - name
+    type: object
+  schema.ResponseAdminLogin:
+    properties:
+      role:
+        type: string
+      token:
+        type: string
+      userId:
+        type: string
+    type: object
+  schema.ResponseAuditGet:
+    properties:
+      action:
+        type: string
+      created_at:
+        type: string
+      entity_id:
+        type: string
+      entity_type:
+        type: string
+      id:
+        type: string
+      new_value:
+        type: string
+      old_value:
+        type: string
+      user_id:
+        type: string
+      user_role:
+        type: string
+    type: object
+  schema.ResponseAuditItem:
+    properties:
+      action:
+        type: string
+      created_at:
+        type: string
+      entity_id:
+        type: string
+      entity_type:
+        type: string
+      id:
+        type: string
+      user_id:
+        type: string
+      user_role:
+        type: string
+    type: object
+  schema.ResponseBookCreate:
+    properties:
+      id:
+        type: string
+    type: object
+  schema.ResponseBookDelete:
+    type: object
+  schema.ResponseBookGet:
+    properties:
+      author:
+        type: string
+      id:
+        type: string
+      title:
+        type: string
+    type: object
+  schema.ResponseBookUpdate:
+    properties:
+      id:
+        type: string
+    type: object
+  schema.ResponseGoalCreate:
+    properties:
+      id:
+        type: string
+    type: object
+  schema.ResponseGoalDelete:
+    type: object
+  schema.ResponseGoalGet:
+    properties:
+      id:
+        type: string
+      match_id:
+        type: string
+      minute_scored:
+        type: integer
+      player_id:
+        type: string
+    type: object
+  schema.ResponseGoalItem:
+    properties:
+      id:
+        type: string
+      match_id:
+        type: string
+      minute_scored:
+        type: integer
+      player_id:
+        type: string
+    type: object
+  schema.ResponseGoalsPerPlayerItem:
+    properties:
+      goals:
+        type: integer
+      player_id:
+        type: string
+    type: object
+  schema.ResponseLogin:
+    properties:
+      role:
+        type: string
+      token:
+        type: string
+      userId:
+        type: string
+    type: object
+  schema.ResponseMatchCreate:
+    properties:
+      id:
+        type: string
+    type: object
+  schema.ResponseMatchDelete:
+    type: object
+  schema.ResponseMatchGet:
+    properties:
+      away_score:
+        type: integer
+      away_team_id:
+        type: string
+      home_score:
+        type: integer
+      home_team_id:
+        type: string
+      id:
+        type: string
+      match_date:
+        type: string
+      match_time:
+        type: string
+      status:
+        type: string
+    type: object
+  schema.ResponseMatchItem:
+    properties:
+      away_team_id:
+        type: string
+      home_team_id:
+        type: string
+      id:
+        type: string
+      match_date:
+        type: string
+      status:
+        type: string
+    type: object
+  schema.ResponseMatchUpdate:
+    properties:
+      id:
+        type: string
+    type: object
+  schema.ResponsePlayerCreate:
+    properties:
+      id:
+        type: string
+    type: object
+  schema.ResponsePlayerDelete:
+    type: object
+  schema.ResponsePlayerGet:
+    properties:
+      height_cm:
+        type: integer
+      id:
+        type: string
+      name:
+        type: string
+      position:
+        type: string
+      shirt_number:
+        type: integer
+      team_id:
+        type: string
+      weight_kg:
+        type: integer
+    type: object
+  schema.ResponsePlayerItem:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      position:
+        type: string
+      shirt_number:
+        type: integer
+      team_id:
+        type: string
+    type: object
+  schema.ResponsePlayerUpdate:
+    properties:
+      id:
+        type: string
+    type: object
+  schema.ResponseRegister:
+    properties:
+      userId:
+        type: string
+      username:
+        type: string
+    type: object
+  schema.ResponseTeamCreate:
+    properties:
+      id:
+        type: string
+    type: object
+  schema.ResponseTeamDelete:
+    type: object
+  schema.ResponseTeamGet:
+    properties:
+      address:
+        type: string
+      city:
+        type: string
+      founded_year:
+        type: integer
+      id:
+        type: string
+      logo_url:
+        type: string
+      name:
+        type: string
+    type: object
+  schema.ResponseTeamGoalsItem:
+    properties:
+      goals:
+        type: integer
+      team_id:
+        type: string
+    type: object
+  schema.ResponseTeamItem:
+    properties:
+      city:
+        type: string
+      founded_year:
+        type: integer
+      id:
+        type: string
+      logo_url:
+        type: string
+      name:
+        type: string
+    type: object
+  schema.ResponseTeamUpdate:
+    properties:
+      id:
+        type: string
+    type: object
+  wrapper.JSONResult:
+    properties:
+      data: {}
+      message:
+        type: string
+      meta:
+        $ref: '#/definitions/wrapper.PaginationMeta'
+      statusCode:
+        $ref: '#/definitions/contract.StatusCode'
+    type: object
+  wrapper.PaginationMeta:
+    properties:
+      metadata: {}
+      page:
+        type: integer
+      totalData:
+        type: integer
+      totalDataOnPage:
+        type: integer
+      totalPage:
+        type: integer
+    type: object
+host: 127.0.0.1:9000
 info:
   contact: {}
   description: This is a sample server.
   title: Codebase API Example documentation
   version: "1.0"
-paths: {}
+paths:
+  /audits/v1:
+    get:
+      consumes:
+      - application/json
+      description: List audit logs (admin only)
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/wrapper.JSONResult'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/schema.ResponseAuditItem'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BearerAuth: []
+      summary: List audit logs
+      tags:
+      - Audits
+  /audits/v1/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a single audit log (admin only)
+      parameters:
+      - description: Audit ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/wrapper.JSONResult'
+            - properties:
+                data:
+                  $ref: '#/definitions/schema.ResponseAuditGet'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BearerAuth: []
+      summary: Get audit by id
+      tags:
+      - Audits
+  /auth/v1/admin/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate admin user and return JWT token
+      parameters:
+      - description: Admin login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/schema.RequestAdminLogin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/wrapper.JSONResult'
+            - properties:
+                data:
+                  $ref: '#/definitions/schema.ResponseAdminLogin'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+      summary: Admin login
+      tags:
+      - Authentication
+  /auth/v1/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return JWT token
+      parameters:
+      - description: Login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/schema.RequestLogin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/wrapper.JSONResult'
+            - properties:
+                data:
+                  $ref: '#/definitions/schema.ResponseLogin'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+      summary: User login
+      tags:
+      - Authentication
+  /auth/v1/register:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user account with username and password
+      parameters:
+      - description: Registration details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/schema.RequestRegister'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/wrapper.JSONResult'
+            - properties:
+                data:
+                  $ref: '#/definitions/schema.ResponseRegister'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+      summary: Register new user
+      tags:
+      - Authentication
+  /books/v1:
+    get:
+      consumes:
+      - application/json
+      description: List books with pagination
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: page_size
+        type: integer
+      - description: Sort by field
+        in: query
+        name: sort_by
+        type: string
+      - description: Sort order (asc|desc)
+        in: query
+        name: sort_order
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/wrapper.JSONResult'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/schema.ResponseBookGet'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BearerAuth: []
+      summary: List books
+      tags:
+      - Books
+    post:
+      consumes:
+      - application/json
+      description: Create a new book
+      parameters:
+      - description: Create book
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/schema.RequestBookCreate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/wrapper.JSONResult'
+            - properties:
+                data:
+                  $ref: '#/definitions/schema.ResponseBookCreate'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BearerAuth: []
+      summary: Create a new book
+      tags:
+      - Books
+  /books/v1/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a book
+      parameters:
+      - description: Book ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/wrapper.JSONResult'
+            - properties:
+                data:
+                  $ref: '#/definitions/schema.ResponseBookDelete'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BearerAuth: []
+      summary: Delete a book
+      tags:
+      - Books
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a single book
+      parameters:
+      - description: Book ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/wrapper.JSONResult'
+            - properties:
+                data:
+                  $ref: '#/definitions/schema.ResponseBookGet'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BearerAuth: []
+      summary: Get book by id
+      tags:
+      - Books
+    put:
+      consumes:
+      - application/json
+      description: Update a book's information
+      parameters:
+      - description: Book ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update book
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/schema.RequestBookUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/wrapper.JSONResult'
+            - properties:
+                data:
+                  $ref: '#/definitions/schema.ResponseBookUpdate'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BearerAuth: []
+      summary: Update a book
+      tags:
+      - Books
+  /goals/v1:
+    get:
+      consumes:
+      - application/json
+      description: List goals with pagination
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: page_size
+        type: integer
+      - description: Sort by field
+        in: query
+        name: sort_by
+        type: string
+      - description: Sort order (asc|desc)
+        in: query
+        name: sort_order
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/wrapper.JSONResult'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/schema.ResponseGoalItem'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BearerAuth: []
+      summary: List goals
+      tags:
+      - Goals
+    post:
+      consumes:
+      - application/json
+      description: Create a new goal (admin only)
+      parameters:
+      - description: Create goal
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/schema.RequestGoalCreate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/wrapper.JSONResult'
+            - properties:
+                data:
+                  $ref: '#/definitions/schema.ResponseGoalCreate'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BearerAuth: []
+      summary: Create a new goal
+      tags:
+      - Goals
+  /goals/v1/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a goal (admin only)
+      parameters:
+      - description: Goal ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/wrapper.JSONResult'
+            - properties:
+                data:
+                  $ref: '#/definitions/schema.ResponseGoalDelete'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BearerAuth: []
+      summary: Delete a goal
+      tags:
+      - Goals
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a single goal
+      parameters:
+      - description: Goal ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/wrapper.JSONResult'
+            - properties:
+                data:
+                  $ref: '#/definitions/schema.ResponseGoalGet'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BearerAuth: []
+      summary: Get goal by id
+      tags:
+      - Goals
+  /matches/v1:
+    get:
+      consumes:
+      - application/json
+      description: List matches with pagination
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: page_size
+        type: integer
+      - description: Sort by field
+        in: query
+        name: sort_by
+        type: string
+      - description: Sort order (asc|desc)
+        in: query
+        name: sort_order
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/wrapper.JSONResult'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/schema.ResponseMatchItem'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BearerAuth: []
+      summary: List matches
+      tags:
+      - Matches
+    post:
+      consumes:
+      - application/json
+      description: Create a new match (admin only)
+      parameters:
+      - description: Create match
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/schema.RequestMatchCreate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/wrapper.JSONResult'
+            - properties:
+                data:
+                  $ref: '#/definitions/schema.ResponseMatchCreate'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BearerAuth: []
+      summary: Create a new match
+      tags:
+      - Matches
+  /matches/v1/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a match (admin only)
+      parameters:
+      - description: Match ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/wrapper.JSONResult'
+            - properties:
+                data:
+                  $ref: '#/definitions/schema.ResponseMatchDelete'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BearerAuth: []
+      summary: Delete a match
+      tags:
+      - Matches
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a single match
+      parameters:
+      - description: Match ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/wrapper.JSONResult'
+            - properties:
+                data:
+                  $ref: '#/definitions/schema.ResponseMatchGet'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BearerAuth: []
+      summary: Get match by id
+      tags:
+      - Matches
+    put:
+      consumes:
+      - application/json
+      description: Update match information (admin only)
+      parameters:
+      - description: Match ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update match
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/schema.RequestMatchUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/wrapper.JSONResult'
+            - properties:
+                data:
+                  $ref: '#/definitions/schema.ResponseMatchUpdate'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BearerAuth: []
+      summary: Update a match
+      tags:
+      - Matches
+  /players/v1:
+    get:
+      consumes:
+      - application/json
+      description: List players with pagination
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: page_size
+        type: integer
+      - description: Sort by field
+        in: query
+        name: sort_by
+        type: string
+      - description: Sort order (asc|desc)
+        in: query
+        name: sort_order
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/wrapper.JSONResult'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/schema.ResponsePlayerItem'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BearerAuth: []
+      summary: List players
+      tags:
+      - Players
+    post:
+      consumes:
+      - application/json
+      description: Create a new player (admin only)
+      parameters:
+      - description: Create player
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/schema.RequestPlayerCreate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/wrapper.JSONResult'
+            - properties:
+                data:
+                  $ref: '#/definitions/schema.ResponsePlayerCreate'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BearerAuth: []
+      summary: Create a new player
+      tags:
+      - Players
+  /players/v1/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a player (admin only)
+      parameters:
+      - description: Player ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/wrapper.JSONResult'
+            - properties:
+                data:
+                  $ref: '#/definitions/schema.ResponsePlayerDelete'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BearerAuth: []
+      summary: Delete a player
+      tags:
+      - Players
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a single player
+      parameters:
+      - description: Player ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/wrapper.JSONResult'
+            - properties:
+                data:
+                  $ref: '#/definitions/schema.ResponsePlayerGet'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BearerAuth: []
+      summary: Get player by id
+      tags:
+      - Players
+    put:
+      consumes:
+      - application/json
+      description: Update a player's information (admin only)
+      parameters:
+      - description: Player ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update player
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/schema.RequestPlayerUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/wrapper.JSONResult'
+            - properties:
+                data:
+                  $ref: '#/definitions/schema.ResponsePlayerUpdate'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BearerAuth: []
+      summary: Update a player
+      tags:
+      - Players
+  /reports/v1/goals-per-player:
+    get:
+      consumes:
+      - application/json
+      description: Returns number of goals per player
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/wrapper.JSONResult'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/schema.ResponseGoalsPerPlayerItem'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BearerAuth: []
+      summary: Goals per player
+      tags:
+      - Reports
+  /reports/v1/team-goals:
+    get:
+      consumes:
+      - application/json
+      description: Returns number of goals per team
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/wrapper.JSONResult'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/schema.ResponseTeamGoalsItem'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BearerAuth: []
+      summary: Goals per team
+      tags:
+      - Reports
+  /teams/v1:
+    get:
+      consumes:
+      - application/json
+      description: List teams with pagination
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: page_size
+        type: integer
+      - description: Sort by field
+        in: query
+        name: sort_by
+        type: string
+      - description: Sort order (asc|desc)
+        in: query
+        name: sort_order
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/wrapper.JSONResult'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/schema.ResponseTeamItem'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BearerAuth: []
+      summary: List teams
+      tags:
+      - Teams
+    post:
+      consumes:
+      - application/json
+      description: Create a new team (admin only)
+      parameters:
+      - description: Create team
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/schema.RequestTeamCreate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/wrapper.JSONResult'
+            - properties:
+                data:
+                  $ref: '#/definitions/schema.ResponseTeamCreate'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BearerAuth: []
+      summary: Create a new team
+      tags:
+      - Teams
+  /teams/v1/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a team (admin only)
+      parameters:
+      - description: Team ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/wrapper.JSONResult'
+            - properties:
+                data:
+                  $ref: '#/definitions/schema.ResponseTeamDelete'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BearerAuth: []
+      summary: Delete a team
+      tags:
+      - Teams
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a single team
+      parameters:
+      - description: Team ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/wrapper.JSONResult'
+            - properties:
+                data:
+                  $ref: '#/definitions/schema.ResponseTeamGet'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BearerAuth: []
+      summary: Get team by id
+      tags:
+      - Teams
+    put:
+      consumes:
+      - application/json
+      description: Update a team's information (admin only)
+      parameters:
+      - description: Team ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update team
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/schema.RequestTeamUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/wrapper.JSONResult'
+            - properties:
+                data:
+                  $ref: '#/definitions/schema.ResponseTeamUpdate'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BearerAuth: []
+      summary: Update a team
+      tags:
+      - Teams
 securityDefinitions:
   BasicAuth:
     type: basic

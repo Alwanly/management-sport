@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 
@@ -49,6 +50,14 @@ func main() {
 		zap.String("version", cfg.ServiceVersion),
 		zap.String("environment", cfg.Environment),
 	)
+
+	// Create upload directories
+	uploadDir := filepath.Join(cfg.UploadDirectory, "logo_teams")
+	if err := os.MkdirAll(uploadDir, 0755); err != nil {
+		l.Error("Failed to create upload directory", zap.Error(err))
+		os.Exit(1)
+	}
+	l.Info("Upload directory ready", zap.String("path", uploadDir))
 
 	// Setup database
 	dbConfig := database.DBServiceOpts{

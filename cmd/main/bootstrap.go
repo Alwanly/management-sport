@@ -110,5 +110,8 @@ func Bootstrap(d *AppDeps) *deps.App {
 		c.JSON(http.StatusOK, gin.H{"message": "admin access ok"})
 	})
 
+	// Serve static files for uploaded images
+	e.Static("/images", d.Config.UploadDirectory)
+
 	return inst
 }

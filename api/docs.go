@@ -2101,9 +2101,15 @@ const docTemplate = `{
                     "type": "string",
                     "enum": [
                         "GK",
-                        "DF",
-                        "MF",
-                        "FW"
+                        "CB",
+                        "LB",
+                        "DM",
+                        "CM",
+                        "RM",
+                        "LM",
+                        "RW",
+                        "LW",
+                        "CF"
                     ]
                 },
                 "shirt_number": {
@@ -2188,12 +2194,12 @@ const docTemplate = `{
                 "name"
             ],
             "properties": {
+                "-": {
+                    "$ref": "#/definitions/middleware.AuthUserData"
+                },
                 "address": {
                     "type": "string",
                     "maxLength": 500
-                },
-                "authUserData": {
-                    "$ref": "#/definitions/middleware.AuthUserData"
                 },
                 "city": {
                     "type": "string",
@@ -2203,9 +2209,6 @@ const docTemplate = `{
                     "type": "integer",
                     "maximum": 2100,
                     "minimum": 1800
-                },
-                "logo_url": {
-                    "type": "string"
                 },
                 "name": {
                     "type": "string",
@@ -2221,12 +2224,12 @@ const docTemplate = `{
                 "name"
             ],
             "properties": {
+                "-": {
+                    "$ref": "#/definitions/middleware.AuthUserData"
+                },
                 "address": {
                     "type": "string",
                     "maxLength": 500
-                },
-                "authUserData": {
-                    "$ref": "#/definitions/middleware.AuthUserData"
                 },
                 "city": {
                     "type": "string",
@@ -2238,9 +2241,6 @@ const docTemplate = `{
                     "minimum": 1800
                 },
                 "id": {
-                    "type": "string"
-                },
-                "logo_url": {
                     "type": "string"
                 },
                 "name": {

@@ -6,12 +6,11 @@ import (
 )
 
 type RequestTeamCreate struct {
-	Name         string `json:"name" validate:"required,min=3,max=255"`
-	LogoURL      string `json:"logo_url" validate:"omitempty,url"`
-	FoundedYear  int    `json:"founded_year" validate:"omitempty,min=1800,max=2100"`
-	Address      string `json:"address" validate:"omitempty,max=500"`
-	City         string `json:"city" validate:"omitempty,max=255"`
-	AuthUserData *middleware.AuthUserData
+	Name         string                   `form:"name" validate:"required,min=3,max=255"`
+	FoundedYear  int                      `form:"founded_year" validate:"omitempty,min=1800,max=2100"`
+	Address      string                   `form:"address" validate:"omitempty,max=500"`
+	City         string                   `form:"city" validate:"omitempty,max=255"`
+	AuthUserData *middleware.AuthUserData `form:"-"`
 }
 
 type RequestTeamGet struct {
@@ -28,13 +27,12 @@ type RequestTeamList struct {
 }
 
 type RequestTeamUpdate struct {
-	ID           string `uri:"id" validate:"required"`
-	Name         string `json:"name" validate:"required,min=3,max=255"`
-	LogoURL      string `json:"logo_url" validate:"omitempty,url"`
-	FoundedYear  int    `json:"founded_year" validate:"omitempty,min=1800,max=2100"`
-	Address      string `json:"address" validate:"omitempty,max=500"`
-	City         string `json:"city" validate:"omitempty,max=255"`
-	AuthUserData *middleware.AuthUserData
+	ID           string                   `uri:"id" validate:"required"`
+	Name         string                   `form:"name" validate:"required,min=3,max=255"`
+	FoundedYear  int                      `form:"founded_year" validate:"omitempty,min=1800,max=2100"`
+	Address      string                   `form:"address" validate:"omitempty,max=500"`
+	City         string                   `form:"city" validate:"omitempty,max=255"`
+	AuthUserData *middleware.AuthUserData `form:"-"`
 }
 
 type RequestTeamDelete struct {

@@ -2095,9 +2095,15 @@
                     "type": "string",
                     "enum": [
                         "GK",
-                        "DF",
-                        "MF",
-                        "FW"
+                        "CB",
+                        "LB",
+                        "DM",
+                        "CM",
+                        "RM",
+                        "LM",
+                        "RW",
+                        "LW",
+                        "CF"
                     ]
                 },
                 "shirt_number": {
@@ -2182,12 +2188,12 @@
                 "name"
             ],
             "properties": {
+                "-": {
+                    "$ref": "#/definitions/middleware.AuthUserData"
+                },
                 "address": {
                     "type": "string",
                     "maxLength": 500
-                },
-                "authUserData": {
-                    "$ref": "#/definitions/middleware.AuthUserData"
                 },
                 "city": {
                     "type": "string",
@@ -2197,9 +2203,6 @@
                     "type": "integer",
                     "maximum": 2100,
                     "minimum": 1800
-                },
-                "logo_url": {
-                    "type": "string"
                 },
                 "name": {
                     "type": "string",
@@ -2215,12 +2218,12 @@
                 "name"
             ],
             "properties": {
+                "-": {
+                    "$ref": "#/definitions/middleware.AuthUserData"
+                },
                 "address": {
                     "type": "string",
                     "maxLength": 500
-                },
-                "authUserData": {
-                    "$ref": "#/definitions/middleware.AuthUserData"
                 },
                 "city": {
                     "type": "string",
@@ -2232,9 +2235,6 @@
                     "minimum": 1800
                 },
                 "id": {
-                    "type": "string"
-                },
-                "logo_url": {
                     "type": "string"
                 },
                 "name": {

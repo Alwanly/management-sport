@@ -30,4 +30,9 @@ func loadDefaults() {
 
 	// redis default
 	viper.SetDefault("REDIS_URI", "redis://redis:6379/0")
+
+	// File Upload defaults
+	viper.SetDefault("UPLOAD_DIRECTORY", "./images")
+	viper.SetDefault("MAX_UPLOAD_SIZE", 5242880) // 5MB in bytes
+	viper.SetDefault("ALLOWED_IMAGE_TYPES", "image/jpeg,image/png")
 }

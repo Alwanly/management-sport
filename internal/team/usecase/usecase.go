@@ -2,7 +2,11 @@ package usecase
 
 import (
 	"context"
+	"fmt"
+	"mime/multipart"
 	"net/http"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/Alwanly/management-sport/config"
@@ -29,6 +33,8 @@ type IUseCase interface {
 	List(context.Context, *schema.RequestTeamList) wrapper.JSONResult
 	Update(context.Context, *schema.RequestTeamUpdate) wrapper.JSONResult
 	Delete(context.Context, *schema.RequestTeamDelete) wrapper.JSONResult
+	ProcessLogoUpload(teamName string, file *multipart.FileHeader) (string, error)
+	DeleteOldLogo(logoURL string) error
 }
 
 func NewUseCase(uc UseCase) IUseCase {
@@ -46,13 +52,14 @@ func (u *UseCase) Create(ctx context.Context, req *schema.RequestTeamCreate) wra
 	team := &model.Team{
 		ID:          utils.GenerateUUID(),
 		Name:        req.Name,
-		LogoURL:     req.LogoURL,
+		LogoURL:     "",
 		FoundedYear: req.FoundedYear,
 		Address:     req.Address,
 		City:        req.City,
 		CreatedBy:   req.AuthUserData.UserID,
 		CreatedAt:   now,
 		UpdatedAt:   now,
+		UpdatedBy:   req.AuthUserData.UserID,
 	}
 
 	if err := u.Repository.Create(ctx, team); err != nil {
@@ -62,6 +69,65 @@ func (u *UseCase) Create(ctx context.Context, req *schema.RequestTeamCreate) wra
 
 	l.Debug("team created", zap.String("id", team.ID))
 	return wrapper.ResponseSuccess(http.StatusCreated, schema.ResponseTeamCreate{ID: team.ID})
+}
+
+func (u *UseCase) ProcessLogoUpload(teamName string, file *multipart.FileHeader) (string, error) {
+	l := u.Logger.With(zap.String("usecase", "ProcessLogoUpload"))
+
+	// Parse allowed image types from config
+	allowedTypesStr := strings.Split(u.Config.AllowedImageTypes, ",")
+
+	// Validate file
+	if err := utils.ValidateImageFile(file, u.Config.MaxUploadSize, allowedTypesStr); err != nil {
+		l.Error("file validation failed", zap.Error(err))
+		return "", err
+	}
+
+	// Get file extension
+	ext := filepath.Ext(file.Filename)
+
+	// Generate unique filename
+	filename := utils.GenerateUniqueFilename(teamName, ext)
+
+	// Build directory path
+	directory := filepath.Join(u.Config.UploadDirectory, "logo_teams")
+
+	// Save file
+	fullPath, err := utils.SaveUploadedFile(file, directory, filename)
+	if err != nil {
+		l.Error("failed to save uploaded file", zap.Error(err))
+		return "", fmt.Errorf("failed to save uploaded file")
+	}
+
+	// Return URL path (not filesystem path)
+	urlPath := filepath.ToSlash(filepath.Join("/images", "logo_teams", filename))
+	l.Info("logo uploaded successfully",
+		zap.String("path", urlPath),
+		zap.String("filesystem_path", fullPath))
+
+	return urlPath, nil
+}
+
+func (u *UseCase) DeleteOldLogo(logoURL string) error {
+	if logoURL == "" {
+		return nil
+	}
+
+	// Convert URL path to filesystem path
+	// Example: /images/logo_teams/logo-team-name.jpg -> ./images/logo_teams/logo-team-name.jpg
+	relativePath := strings.TrimPrefix(logoURL, "/images/")
+	fullPath := filepath.Join(u.Config.UploadDirectory, relativePath)
+
+	// Delete the file
+	if err := utils.DeleteFile(fullPath); err != nil {
+		u.Logger.Error("failed to delete old logo",
+			zap.String("path", fullPath),
+			zap.Error(err))
+		return err
+	}
+
+	u.Logger.Info("old logo deleted successfully", zap.String("path", fullPath))
+	return nil
 }
 
 func (u *UseCase) Get(ctx context.Context, req *schema.RequestTeamGet) wrapper.JSONResult {
@@ -103,7 +169,6 @@ func (u *UseCase) Update(ctx context.Context, req *schema.RequestTeamUpdate) wra
 	}
 
 	team.Name = req.Name
-	team.LogoURL = req.LogoURL
 	team.FoundedYear = req.FoundedYear
 	team.Address = req.Address
 	team.City = req.City

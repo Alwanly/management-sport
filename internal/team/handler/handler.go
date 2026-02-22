@@ -1,13 +1,20 @@
 package handler
 
 import (
+	"context"
+	"net/http"
+	"time"
+
 	"github.com/Alwanly/management-sport/internal/team/repository"
 	"github.com/Alwanly/management-sport/internal/team/schema"
 	"github.com/Alwanly/management-sport/internal/team/usecase"
 	"github.com/Alwanly/management-sport/pkg/binding"
+	"github.com/Alwanly/management-sport/pkg/contract"
 	"github.com/Alwanly/management-sport/pkg/deps"
 	"github.com/Alwanly/management-sport/pkg/logger"
+	"github.com/Alwanly/management-sport/pkg/middleware"
 	"github.com/Alwanly/management-sport/pkg/validator"
+	"github.com/Alwanly/management-sport/pkg/wrapper"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -65,22 +72,97 @@ func NewHandler(d *deps.App) *Handler {
 // @Router       /teams/v1 [post]
 func (h *Handler) Create(c *gin.Context) {
 	l := logger.WithID(h.Logger, ContextName, "Create")
-
-	model := &schema.RequestTeamCreate{}
-	if err := binding.BindModel(l, c, model, binding.BindFromBody()); err != nil {
-		perr := err.(*binding.ModelBindingError)
-		c.JSON(perr.Code, perr.ResponseBody)
+	// Parse multipart form
+	if err := c.Request.ParseMultipartForm(10 << 20); err != nil {
+		l.Error("failed to parse multipart form", zap.Error(err))
+		result := wrapper.ResponseFailed(
+			http.StatusBadRequest,
+			contract.StatusCodeBindingFailed,
+			"Failed to parse form data",
+			nil,
+		)
+		c.JSON(result.Code, result)
 		return
 	}
 
+	// Bind form fields to model
+	model := &schema.RequestTeamCreate{}
+	if err := c.ShouldBind(model); err != nil {
+		l.Error("failed to bind form data", zap.Error(err))
+		result := wrapper.ResponseFailed(
+			http.StatusBadRequest,
+			contract.StatusCodeBindingFailed,
+			contract.ErrorValidatePayload,
+			nil,
+		)
+		c.JSON(result.Code, result)
+		return
+	}
+
+	// Get auth data from context
+	if authUserValue, exists := c.Get(middleware.LocalTokenKey); exists {
+		if authUser, ok := authUserValue.(*middleware.AuthUserData); ok {
+			model.AuthUserData = authUser
+		}
+	}
+
+	// Validate model
 	if err := validator.ValidateModel(l, h.Validator, model); err != nil {
 		perr := err.(*validator.ModelValidationError)
 		c.JSON(perr.Code, perr.ResponseBody)
 		return
 	}
 
+	// Handle file upload (optional)
+	var logoURL string
+	file, err := c.FormFile("logo")
+	if err == nil {
+		// File was provided, process it
+		logoURL, err = h.UseCase.ProcessLogoUpload(model.Name, file)
+		if err != nil {
+			l.Error("failed to process logo upload", zap.Error(err))
+			result := wrapper.ResponseFailed(
+				http.StatusBadRequest,
+				contract.StatusCodeValidationFailed,
+				err.Error(),
+				nil,
+			)
+			c.JSON(result.Code, result)
+			return
+		}
+		l.Info("logo uploaded", zap.String("url", logoURL))
+	}
+
+	// Create team
 	response := h.UseCase.Create(c.Request.Context(), model)
+
+	// If team created successfully and logo was uploaded, update the logo URL
+	if response.StatusCode == contract.StatusCodeSuccess && logoURL != "" {
+		if createResp, ok := response.Data.(schema.ResponseTeamCreate); ok {
+			// Update the team's logo URL in database
+			teamToUpdate := h.UseCase.Get(c.Request.Context(), &schema.RequestTeamGet{
+				ID:           createResp.ID,
+				AuthUserData: model.AuthUserData,
+			})
+
+			if teamToUpdate.StatusCode == contract.StatusCodeSuccess {
+				// Update with logo path - update directly
+				h.updateTeamLogo(c.Request.Context(), createResp.ID, logoURL, model.AuthUserData.UserID)
+			}
+		}
+	}
+
 	c.JSON(response.Code, response)
+}
+
+func (h *Handler) updateTeamLogo(ctx context.Context, teamID string, logoURL string, userID string) {
+	team := h.UseCase.(*usecase.UseCase).Repository.Get(ctx, teamID)
+	if team != nil {
+		team.LogoURL = logoURL
+		team.UpdatedBy = userID
+		team.UpdatedAt = time.Now()
+		h.UseCase.(*usecase.UseCase).Repository.Update(ctx, team)
+	}
 }
 
 // Get godoc
@@ -168,19 +250,111 @@ func (h *Handler) List(c *gin.Context) {
 func (h *Handler) Update(c *gin.Context) {
 	l := logger.WithID(h.Logger, ContextName, "Update")
 
-	model := &schema.RequestTeamUpdate{}
-	if err := binding.BindModel(l, c, model, binding.BindFromParams(), binding.BindFromBody()); err != nil {
-		perr := err.(*binding.ModelBindingError)
-		c.JSON(perr.Code, perr.ResponseBody)
+	// Get team ID from path
+	teamID := c.Param("id")
+	if teamID == "" {
+		result := wrapper.ResponseFailed(
+			http.StatusBadRequest,
+			contract.StatusCodeBindingFailed,
+			"Team ID is required",
+			nil,
+		)
+		c.JSON(result.Code, result)
 		return
 	}
 
+	// Parse multipart form
+	if err := c.Request.ParseMultipartForm(10 << 20); err != nil {
+		l.Error("failed to parse multipart form", zap.Error(err))
+		result := wrapper.ResponseFailed(
+			http.StatusBadRequest,
+			contract.StatusCodeBindingFailed,
+			"Failed to parse form data",
+			nil,
+		)
+		c.JSON(result.Code, result)
+		return
+	}
+
+	// Bind form fields to model
+	model := &schema.RequestTeamUpdate{}
+	if err := c.ShouldBind(model); err != nil {
+		l.Error("failed to bind form data", zap.Error(err))
+		result := wrapper.ResponseFailed(
+			http.StatusBadRequest,
+			contract.StatusCodeBindingFailed,
+			contract.ErrorValidatePayload,
+			nil,
+		)
+		c.JSON(result.Code, result)
+		return
+	}
+
+	// Set ID from path parameter
+	model.ID = teamID
+
+	// Get auth data from context
+	if authUserValue, exists := c.Get(middleware.LocalTokenKey); exists {
+		if authUser, ok := authUserValue.(*middleware.AuthUserData); ok {
+			model.AuthUserData = authUser
+		}
+	}
+
+	// Validate model
 	if err := validator.ValidateModel(l, h.Validator, model); err != nil {
 		perr := err.(*validator.ModelValidationError)
 		c.JSON(perr.Code, perr.ResponseBody)
 		return
 	}
 
+	// Get existing team to check for old logo
+	existingTeam := h.UseCase.Get(c.Request.Context(), &schema.RequestTeamGet{
+		ID:           teamID,
+		AuthUserData: model.AuthUserData,
+	})
+
+	if existingTeam.StatusCode != contract.StatusCodeSuccess {
+		c.JSON(existingTeam.Code, existingTeam)
+		return
+	}
+
+	var oldLogoURL string
+	if teamData, ok := existingTeam.Data.(schema.ResponseTeamGet); ok {
+		oldLogoURL = teamData.LogoURL
+	}
+
+	// Handle file upload (optional)
+	var newLogoURL string
+	file, err := c.FormFile("logo")
+	if err == nil {
+		// File was provided, process it
+		newLogoURL, err = h.UseCase.ProcessLogoUpload(model.Name, file)
+		if err != nil {
+			l.Error("failed to process logo upload", zap.Error(err))
+			result := wrapper.ResponseFailed(
+				http.StatusBadRequest,
+				contract.StatusCodeValidationFailed,
+				err.Error(),
+				nil,
+			)
+			c.JSON(result.Code, result)
+			return
+		}
+		l.Info("logo uploaded", zap.String("url", newLogoURL))
+
+		// Delete old logo if it exists and is different
+		if oldLogoURL != "" && oldLogoURL != newLogoURL {
+			if err := h.UseCase.DeleteOldLogo(oldLogoURL); err != nil {
+				l.Warn("failed to delete old logo", zap.Error(err))
+				// Continue anyway, don't fail the update
+			}
+		}
+
+		// Update team logo in database directly
+		h.updateTeamLogo(c.Request.Context(), teamID, newLogoURL, model.AuthUserData.UserID)
+	}
+
+	// Update team
 	response := h.UseCase.Update(c.Request.Context(), model)
 	c.JSON(response.Code, response)
 }

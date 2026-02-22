@@ -163,9 +163,15 @@ definitions:
       position:
         enum:
         - GK
-        - DF
-        - MF
-        - FW
+        - CB
+        - LB
+        - DM
+        - CM
+        - RM
+        - LM
+        - RW
+        - LW
+        - CF
         type: string
       shirt_number:
         maximum: 99
@@ -230,11 +236,11 @@ definitions:
     type: object
   schema.RequestTeamCreate:
     properties:
+      '-':
+        $ref: '#/definitions/middleware.AuthUserData'
       address:
         maxLength: 500
         type: string
-      authUserData:
-        $ref: '#/definitions/middleware.AuthUserData'
       city:
         maxLength: 255
         type: string
@@ -242,8 +248,6 @@ definitions:
         maximum: 2100
         minimum: 1800
         type: integer
-      logo_url:
-        type: string
       name:
         maxLength: 255
         minLength: 3
@@ -253,11 +257,11 @@ definitions:
     type: object
   schema.RequestTeamUpdate:
     properties:
+      '-':
+        $ref: '#/definitions/middleware.AuthUserData'
       address:
         maxLength: 500
         type: string
-      authUserData:
-        $ref: '#/definitions/middleware.AuthUserData'
       city:
         maxLength: 255
         type: string
@@ -266,8 +270,6 @@ definitions:
         minimum: 1800
         type: integer
       id:
-        type: string
-      logo_url:
         type: string
       name:
         maxLength: 255

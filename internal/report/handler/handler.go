@@ -25,6 +25,7 @@ func NewHandler(d *deps.App) *Handler {
 	group.Use(d.Auth.JwtAuth())
 	group.GET("/goals-per-player", h.GoalsPerPlayer)
 	group.GET("/team-goals", h.TeamGoals)
+	group.GET("/matches", h.MatchReport)
 
 	return h
 }
@@ -56,5 +57,21 @@ func (h *Handler) GoalsPerPlayer(c *gin.Context) {
 // @Router       /reports/v1/team-goals [get]
 func (h *Handler) TeamGoals(c *gin.Context) {
 	resp := h.UseCase.TeamGoals(c.Request.Context())
+	c.JSON(resp.Code, resp)
+}
+
+// MatchReport godoc
+// @Summary      Match report
+// @Description  Returns finished matches with schedule, teams, scores, and results
+// @Tags         Reports
+// @Accept       json
+// @Produce      json
+// @Success      200 {object} wrapper.JSONResult{data=[]schema.ResponseMatchReportItem}
+// @Failure      400 {object} wrapper.JSONResult
+// @Failure      500 {object} wrapper.JSONResult
+// @Security     BearerAuth
+// @Router       /reports/v1/matches [get]
+func (h *Handler) MatchReport(c *gin.Context) {
+	resp := h.UseCase.MatchReport(c.Request.Context())
 	c.JSON(resp.Code, resp)
 }

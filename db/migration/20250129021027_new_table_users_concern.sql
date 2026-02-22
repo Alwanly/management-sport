@@ -1,2 +1,12 @@
 -- Create "users" table
-CREATE TABLE "users" ("id" character varying(36) NOT NULL, "username" character varying(36) NOT NULL, "password" integer NOT NULL, "created_at" bigint NULL, "created_by" character varying(36) NULL, "updated_at" bigint NULL, "updated_by" character varying(36) NULL, PRIMARY KEY ("id"));
+CREATE TABLE IF NOT EXISTS "users" (
+	"id" character varying(36) NOT NULL,
+	"username" character varying(255) NOT NULL,
+	"password" character varying(255) NOT NULL,
+	"role" character varying(50) NOT NULL DEFAULT 'user',
+	"created_at" timestamptz NOT NULL,
+	"updated_at" timestamptz NOT NULL,
+	PRIMARY KEY ("id")
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_users_username" ON "users"("username");

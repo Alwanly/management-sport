@@ -17,6 +17,7 @@ import (
 
 	_ "github.com/Alwanly/management-sport/api"
 	audit_handler "github.com/Alwanly/management-sport/internal/audit/handler"
+	auth_handler "github.com/Alwanly/management-sport/internal/auth/handler"
 	book_handler "github.com/Alwanly/management-sport/internal/example/handler"
 	goal_handler "github.com/Alwanly/management-sport/internal/goal/handler"
 	match_handler "github.com/Alwanly/management-sport/internal/match/handler"
@@ -70,10 +71,8 @@ func Bootstrap(d *AppDeps) *deps.App {
 	v, _ := validator.NewValidator()
 
 	// Swagger
-	if d.Config.Environment == "development" {
-		e.Static("/swagger.yaml", "./api/swagger.yaml")
-		e.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	}
+
+	e.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	inst = &deps.App{
 		Config:    d.Config,
@@ -102,6 +101,7 @@ func Bootstrap(d *AppDeps) *deps.App {
 	goal_handler.NewHandler(inst)
 	audit_handler.NewHandler(inst)
 	report_handler.NewHandler(inst)
+	auth_handler.NewHandler(inst)
 
 	// Admin-only test endpoint (for RBAC verification)
 	e.GET("/admin/test", inst.Auth.AdminAuth(), func(c *gin.Context) {

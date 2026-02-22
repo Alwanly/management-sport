@@ -27,7 +27,7 @@ func NewHandler(d *deps.App) *Handler {
 
 	// Admin-only audit endpoints
 	admin := d.Gin.Group("/audits/v1")
-	admin.Use(d.Auth.AdminAuth())
+	admin.Use(d.Auth.JwtAuth(), d.Auth.AdminAuth())
 	admin.GET("/", h.List)
 	admin.GET(":id", h.Get)
 

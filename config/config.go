@@ -1,6 +1,7 @@
 package config
 
 import (
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"reflect"
@@ -94,14 +95,24 @@ func (c *GlobalConfig) Validate() error {
 		errs = append(errs, "JWT_REFRESH_EXPIRATION must be greater than 0")
 	}
 
-	// Warn about missing keys in production (but don't fail)
+	// Validate JWT secret key in production
 	if c.Environment == "production" {
-		if c.PrivateKey == "" {
-			errs = append(errs, "PRIVATE_KEY should be set in production")
+		if c.JwtSecret == "" {
+			errs = append(errs, "JWT_SECRET is required in production")
+		} else {
+			// Validate minimum length (32 bytes when base64 decoded)
+			decoded, err := base64.StdEncoding.DecodeString(c.JwtSecret)
+			if err != nil {
+				// If not base64, check raw length
+				if len(c.JwtSecret) < 32 {
+					errs = append(errs, "JWT_SECRET must be at least 32 bytes (256 bits)")
+				}
+			} else if len(decoded) < 32 {
+				errs = append(errs, "JWT_SECRET must be at least 32 bytes (256 bits) when decoded")
+			}
 		}
-		if c.PublicKey == "" {
-			errs = append(errs, "PUBLIC_KEY should be set in production")
-		}
+	} else if c.JwtSecret == "" {
+		errs = append(errs, "JWT_SECRET is required")
 	}
 
 	if len(errs) > 0 {

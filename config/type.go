@@ -19,9 +19,8 @@ type GlobalConfig struct {
 	JwtExpirationTime int    `mapstructure:"JWT_EXPIRATION"`
 	JwtRefreshTime    int    `mapstructure:"JWT_REFRESH_EXPIRATION"`
 
-	// RSA keys
-	PublicKey  string `mapstructure:"PUBLIC_KEY"`
-	PrivateKey string `mapstructure:"PRIVATE_KEY"`
+	// JWT secret key for HMAC signing
+	JwtSecret string `mapstructure:"JWT_SECRET"`
 
 	// Database
 	PostgresURI                string `mapstructure:"POSTGRES_URI"`

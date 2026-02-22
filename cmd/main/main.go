@@ -23,7 +23,7 @@ import (
 // @version 1.0
 // @description This is a sample server.
 
-// @host localhost:9000
+// @host 127.0.0.1:9000
 // @BasePath /
 
 // @securityDefinitions.basic BasicAuth
@@ -77,8 +77,7 @@ func main() {
 
 	// Setup JWT middleware
 	jwtService := authentication.NewJWTService(&authentication.JWTConfig{
-		PrivateKey:     cfg.PrivateKey,
-		PublicKey:      cfg.PublicKey,
+		SecretKey:      cfg.JwtSecret,
 		Audience:       cfg.JwtAudience,
 		Issuer:         cfg.JwtIssuer,
 		ExpirationTime: cfg.JwtExpirationTime,

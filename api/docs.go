@@ -1518,6 +1518,61 @@ const docTemplate = `{
                 }
             }
         },
+        "/reports/v1/matches": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns finished matches with schedule, teams, scores, and results",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Reports"
+                ],
+                "summary": "Match report",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/wrapper.JSONResult"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/schema.ResponseMatchReportItem"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/wrapper.JSONResult"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/wrapper.JSONResult"
+                        }
+                    }
+                }
+            }
+        },
         "/reports/v1/team-goals": {
             "get": {
                 "security": [
@@ -1943,6 +1998,31 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "userId": {
+                    "type": "string"
+                }
+            }
+        },
+        "schema.MatchScoreInfo": {
+            "type": "object",
+            "properties": {
+                "away": {
+                    "type": "integer"
+                },
+                "home": {
+                    "type": "integer"
+                }
+            }
+        },
+        "schema.MatchTeamInfo": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "logo_url": {
+                    "type": "string"
+                },
+                "name": {
                     "type": "string"
                 }
             }
@@ -2462,6 +2542,35 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "match_date": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "schema.ResponseMatchReportItem": {
+            "type": "object",
+            "properties": {
+                "away_team": {
+                    "$ref": "#/definitions/schema.MatchTeamInfo"
+                },
+                "final_score": {
+                    "$ref": "#/definitions/schema.MatchScoreInfo"
+                },
+                "home_team": {
+                    "$ref": "#/definitions/schema.MatchTeamInfo"
+                },
+                "match_date": {
+                    "type": "string"
+                },
+                "match_id": {
+                    "type": "string"
+                },
+                "match_time": {
+                    "type": "string"
+                },
+                "result": {
                     "type": "string"
                 },
                 "status": {

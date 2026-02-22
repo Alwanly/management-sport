@@ -25,6 +25,22 @@ definitions:
       userId:
         type: string
     type: object
+  schema.MatchScoreInfo:
+    properties:
+      away:
+        type: integer
+      home:
+        type: integer
+    type: object
+  schema.MatchTeamInfo:
+    properties:
+      id:
+        type: string
+      logo_url:
+        type: string
+      name:
+        type: string
+    type: object
   schema.RequestAdminLogin:
     properties:
       password:
@@ -382,6 +398,25 @@ definitions:
       id:
         type: string
       match_date:
+        type: string
+      status:
+        type: string
+    type: object
+  schema.ResponseMatchReportItem:
+    properties:
+      away_team:
+        $ref: '#/definitions/schema.MatchTeamInfo'
+      final_score:
+        $ref: '#/definitions/schema.MatchScoreInfo'
+      home_team:
+        $ref: '#/definitions/schema.MatchTeamInfo'
+      match_date:
+        type: string
+      match_id:
+        type: string
+      match_time:
+        type: string
+      result:
         type: string
       status:
         type: string
@@ -1403,6 +1438,38 @@ paths:
       security:
       - BearerAuth: []
       summary: Goals per player
+      tags:
+      - Reports
+  /reports/v1/matches:
+    get:
+      consumes:
+      - application/json
+      description: Returns finished matches with schedule, teams, scores, and results
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/wrapper.JSONResult'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/schema.ResponseMatchReportItem'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BearerAuth: []
+      summary: Match report
       tags:
       - Reports
   /reports/v1/team-goals:

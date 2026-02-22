@@ -9,7 +9,7 @@ type RequestPlayerCreate struct {
 	Name         string `json:"name" validate:"required,min=1,max=255"`
 	HeightCM     int    `json:"height_cm" validate:"omitempty,min=0"`
 	WeightKG     int    `json:"weight_kg" validate:"omitempty,min=0"`
-	Position     string `json:"position" validate:"required,oneof=GK DF MF FW"`
+	Position     string `json:"position" validate:"required,oneof=GK CB LB DM CM RM LM RW LW CF"`
 	ShirtNumber  int    `json:"shirt_number" validate:"required,min=1,max=99"`
 	AuthUserData *middleware.AuthUserData
 }

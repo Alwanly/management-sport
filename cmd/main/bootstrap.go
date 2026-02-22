@@ -106,7 +106,7 @@ func Bootstrap(d *AppDeps) *deps.App {
 	auth_handler.NewHandler(inst)
 
 	// Admin-only test endpoint (for RBAC verification)
-	e.GET("/admin/test", inst.Auth.AdminAuth(), func(c *gin.Context) {
+	e.GET("/admin/test", inst.Auth.JwtAuth(), inst.Auth.AdminAuth(), func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"message": "admin access ok"})
 	})
 

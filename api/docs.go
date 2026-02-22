@@ -1640,7 +1640,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
+            }
+        },
+        "/teams/v1/": {
             "post": {
                 "security": [
                     {
@@ -1649,7 +1651,7 @@ const docTemplate = `{
                 ],
                 "description": "Create a new team (admin only)",
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -1660,13 +1662,35 @@ const docTemplate = `{
                 "summary": "Create a new team",
                 "parameters": [
                     {
-                        "description": "Create team",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/schema.RequestTeamCreate"
-                        }
+                        "type": "string",
+                        "description": "Team name",
+                        "name": "name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Founded year",
+                        "name": "founded_year",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Address",
+                        "name": "address",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "City",
+                        "name": "city",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Team logo (JPG or PNG, max 5MB)",
+                        "name": "logo",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -1759,7 +1783,7 @@ const docTemplate = `{
                 ],
                 "description": "Update a team's information (admin only)",
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -1777,13 +1801,35 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Update team",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/schema.RequestTeamUpdate"
-                        }
+                        "type": "string",
+                        "description": "Team name",
+                        "name": "name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Founded year",
+                        "name": "founded_year",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Address",
+                        "name": "address",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "City",
+                        "name": "city",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Team logo (JPG or PNG, max 5MB)",
+                        "name": "logo",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -2182,68 +2228,6 @@ const docTemplate = `{
                     "minLength": 6
                 },
                 "username": {
-                    "type": "string",
-                    "maxLength": 255,
-                    "minLength": 3
-                }
-            }
-        },
-        "schema.RequestTeamCreate": {
-            "type": "object",
-            "required": [
-                "name"
-            ],
-            "properties": {
-                "-": {
-                    "$ref": "#/definitions/middleware.AuthUserData"
-                },
-                "address": {
-                    "type": "string",
-                    "maxLength": 500
-                },
-                "city": {
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "founded_year": {
-                    "type": "integer",
-                    "maximum": 2100,
-                    "minimum": 1800
-                },
-                "name": {
-                    "type": "string",
-                    "maxLength": 255,
-                    "minLength": 3
-                }
-            }
-        },
-        "schema.RequestTeamUpdate": {
-            "type": "object",
-            "required": [
-                "id",
-                "name"
-            ],
-            "properties": {
-                "-": {
-                    "$ref": "#/definitions/middleware.AuthUserData"
-                },
-                "address": {
-                    "type": "string",
-                    "maxLength": 500
-                },
-                "city": {
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "founded_year": {
-                    "type": "integer",
-                    "maximum": 2100,
-                    "minimum": 1800
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
                     "type": "string",
                     "maxLength": 255,
                     "minLength": 3

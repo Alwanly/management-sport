@@ -12,7 +12,6 @@ import (
 	"github.com/Alwanly/management-sport/pkg/contract"
 	"github.com/Alwanly/management-sport/pkg/deps"
 	"github.com/Alwanly/management-sport/pkg/logger"
-	"github.com/Alwanly/management-sport/pkg/middleware"
 	"github.com/Alwanly/management-sport/pkg/validator"
 	"github.com/Alwanly/management-sport/pkg/wrapper"
 	"github.com/gin-gonic/gin"
@@ -63,16 +62,20 @@ func NewHandler(d *deps.App) *Handler {
 // @Summary      Create a new team
 // @Description  Create a new team (admin only)
 // @Tags         Teams
-// @Accept       json
+// @Accept       multipart/form-data
 // @Produce      json
-// @Param        request body schema.RequestTeamCreate true "Create team"
+// @Param        name formData string true "Team name"
+// @Param        founded_year formData int false "Founded year"
+// @Param        address formData string false "Address"
+// @Param        city formData string false "City"
+// @Param        logo formData file false "Team logo (JPG or PNG, max 5MB)"
 // @Success      201 {object} wrapper.JSONResult{data=schema.ResponseTeamCreate}
 // @Failure      400 {object} wrapper.JSONResult
 // @Security     BearerAuth
-// @Router       /teams/v1 [post]
+// @Router       /teams/v1/ [post]
 func (h *Handler) Create(c *gin.Context) {
 	l := logger.WithID(h.Logger, ContextName, "Create")
-	// Parse multipart form
+
 	if err := c.Request.ParseMultipartForm(10 << 20); err != nil {
 		l.Error("failed to parse multipart form", zap.Error(err))
 		result := wrapper.ResponseFailed(
@@ -85,25 +88,11 @@ func (h *Handler) Create(c *gin.Context) {
 		return
 	}
 
-	// Bind form fields to model
 	model := &schema.RequestTeamCreate{}
-	if err := c.ShouldBind(model); err != nil {
-		l.Error("failed to bind form data", zap.Error(err))
-		result := wrapper.ResponseFailed(
-			http.StatusBadRequest,
-			contract.StatusCodeBindingFailed,
-			contract.ErrorValidatePayload,
-			nil,
-		)
-		c.JSON(result.Code, result)
+	if err := binding.BindModel(l, c, model, binding.BindFromMultipart()); err != nil {
+		bindingErr := err.(*binding.ModelBindingError)
+		c.JSON(bindingErr.Code, bindingErr.ResponseBody)
 		return
-	}
-
-	// Get auth data from context
-	if authUserValue, exists := c.Get(middleware.LocalTokenKey); exists {
-		if authUser, ok := authUserValue.(*middleware.AuthUserData); ok {
-			model.AuthUserData = authUser
-		}
 	}
 
 	// Validate model
@@ -239,10 +228,14 @@ func (h *Handler) List(c *gin.Context) {
 // @Summary      Update a team
 // @Description  Update a team's information (admin only)
 // @Tags         Teams
-// @Accept       json
+// @Accept       multipart/form-data
 // @Produce      json
 // @Param        id path string true "Team ID"
-// @Param        request body schema.RequestTeamUpdate true "Update team"
+// @Param        name formData string true "Team name"
+// @Param        founded_year formData int false "Founded year"
+// @Param        address formData string false "Address"
+// @Param        city formData string false "City"
+// @Param        logo formData file false "Team logo (JPG or PNG, max 5MB)"
 // @Success      200 {object} wrapper.JSONResult{data=schema.ResponseTeamUpdate}
 // @Failure      400 {object} wrapper.JSONResult
 // @Security     BearerAuth
@@ -263,7 +256,6 @@ func (h *Handler) Update(c *gin.Context) {
 		return
 	}
 
-	// Parse multipart form
 	if err := c.Request.ParseMultipartForm(10 << 20); err != nil {
 		l.Error("failed to parse multipart form", zap.Error(err))
 		result := wrapper.ResponseFailed(
@@ -276,28 +268,11 @@ func (h *Handler) Update(c *gin.Context) {
 		return
 	}
 
-	// Bind form fields to model
 	model := &schema.RequestTeamUpdate{}
-	if err := c.ShouldBind(model); err != nil {
-		l.Error("failed to bind form data", zap.Error(err))
-		result := wrapper.ResponseFailed(
-			http.StatusBadRequest,
-			contract.StatusCodeBindingFailed,
-			contract.ErrorValidatePayload,
-			nil,
-		)
-		c.JSON(result.Code, result)
+	if err := binding.BindModel(l, c, model, binding.BindFromMultipart(), binding.BindFromParams()); err != nil {
+		bindingErr := err.(*binding.ModelBindingError)
+		c.JSON(bindingErr.Code, bindingErr.ResponseBody)
 		return
-	}
-
-	// Set ID from path parameter
-	model.ID = teamID
-
-	// Get auth data from context
-	if authUserValue, exists := c.Get(middleware.LocalTokenKey); exists {
-		if authUser, ok := authUserValue.(*middleware.AuthUserData); ok {
-			model.AuthUserData = authUser
-		}
 	}
 
 	// Validate model

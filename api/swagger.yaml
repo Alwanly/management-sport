@@ -234,51 +234,6 @@ definitions:
     - password
     - username
     type: object
-  schema.RequestTeamCreate:
-    properties:
-      '-':
-        $ref: '#/definitions/middleware.AuthUserData'
-      address:
-        maxLength: 500
-        type: string
-      city:
-        maxLength: 255
-        type: string
-      founded_year:
-        maximum: 2100
-        minimum: 1800
-        type: integer
-      name:
-        maxLength: 255
-        minLength: 3
-        type: string
-    required:
-    - name
-    type: object
-  schema.RequestTeamUpdate:
-    properties:
-      '-':
-        $ref: '#/definitions/middleware.AuthUserData'
-      address:
-        maxLength: 500
-        type: string
-      city:
-        maxLength: 255
-        type: string
-      founded_year:
-        maximum: 2100
-        minimum: 1800
-        type: integer
-      id:
-        type: string
-      name:
-        maxLength: 255
-        minLength: 3
-        type: string
-    required:
-    - id
-    - name
-    type: object
   schema.ResponseAdminLogin:
     properties:
       role:
@@ -1523,17 +1478,33 @@ paths:
       summary: List teams
       tags:
       - Teams
+  /teams/v1/:
     post:
       consumes:
-      - application/json
+      - multipart/form-data
       description: Create a new team (admin only)
       parameters:
-      - description: Create team
-        in: body
-        name: request
+      - description: Team name
+        in: formData
+        name: name
         required: true
-        schema:
-          $ref: '#/definitions/schema.RequestTeamCreate'
+        type: string
+      - description: Founded year
+        in: formData
+        name: founded_year
+        type: integer
+      - description: Address
+        in: formData
+        name: address
+        type: string
+      - description: City
+        in: formData
+        name: city
+        type: string
+      - description: Team logo (JPG or PNG, max 5MB)
+        in: formData
+        name: logo
+        type: file
       produces:
       - application/json
       responses:
@@ -1620,7 +1591,7 @@ paths:
       - Teams
     put:
       consumes:
-      - application/json
+      - multipart/form-data
       description: Update a team's information (admin only)
       parameters:
       - description: Team ID
@@ -1628,12 +1599,27 @@ paths:
         name: id
         required: true
         type: string
-      - description: Update team
-        in: body
-        name: request
+      - description: Team name
+        in: formData
+        name: name
         required: true
-        schema:
-          $ref: '#/definitions/schema.RequestTeamUpdate'
+        type: string
+      - description: Founded year
+        in: formData
+        name: founded_year
+        type: integer
+      - description: Address
+        in: formData
+        name: address
+        type: string
+      - description: City
+        in: formData
+        name: city
+        type: string
+      - description: Team logo (JPG or PNG, max 5MB)
+        in: formData
+        name: logo
+        type: file
       produces:
       - application/json
       responses:

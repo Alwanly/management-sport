@@ -41,6 +41,7 @@ var inst *deps.App
 // @description This is a Management Sport API server with Gin framework
 // @host localhost:9000
 // @BasePath /
+// @schemes http https
 // @securityDefinitions.basic BasicAuth
 // @securityDefinitions.apikey BearerAuth
 // @in header

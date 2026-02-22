@@ -71,6 +71,16 @@ func BindFromHeaders() Source {
 	}
 }
 
+func BindFromMultipart() Source {
+	return func(b *Binder) error {
+		if err := b.ctx.ShouldBind(b.m); err != nil {
+			b.l.Debug("Error when binding from multipart form", zap.Error(err))
+			return err
+		}
+		return nil
+	}
+}
+
 func BindModel(log *zap.Logger, c *gin.Context, m interface{}, sources ...Source) error {
 	l := logger.WithID(log, ContextName, "BindModel")
 

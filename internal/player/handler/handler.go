@@ -52,6 +52,17 @@ func NewHandler(d *deps.App) *Handler {
 	return handler
 }
 
+// Create godoc
+// @Summary      Create a new player
+// @Description  Create a new player (admin only)
+// @Tags         Players
+// @Accept       json
+// @Produce      json
+// @Param        request body schema.RequestPlayerCreate true "Create player"
+// @Success      201 {object} wrapper.JSONResult{data=schema.ResponsePlayerCreate}
+// @Failure      400 {object} wrapper.JSONResult
+// @Security     BearerAuth
+// @Router       /players/v1 [post]
 func (h *Handler) Create(c *gin.Context) {
 	l := logger.WithID(h.Logger, ContextName, "Create")
 
@@ -72,6 +83,17 @@ func (h *Handler) Create(c *gin.Context) {
 	c.JSON(response.Code, response)
 }
 
+// Get godoc
+// @Summary      Get player by id
+// @Description  Retrieve a single player
+// @Tags         Players
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "Player ID"
+// @Success      200 {object} wrapper.JSONResult{data=schema.ResponsePlayerGet}
+// @Failure      400 {object} wrapper.JSONResult
+// @Security     BearerAuth
+// @Router       /players/v1/{id} [get]
 func (h *Handler) Get(c *gin.Context) {
 	l := logger.WithID(h.Logger, ContextName, "Get")
 
@@ -92,6 +114,20 @@ func (h *Handler) Get(c *gin.Context) {
 	c.JSON(response.Code, response)
 }
 
+// List godoc
+// @Summary      List players
+// @Description  List players with pagination
+// @Tags         Players
+// @Accept       json
+// @Produce      json
+// @Param        page query int false "Page number"
+// @Param        page_size query int false "Page size"
+// @Param        sort_by query string false "Sort by field"
+// @Param        sort_order query string false "Sort order (asc|desc)"
+// @Success      200 {object} wrapper.JSONResult{data=[]schema.ResponsePlayerItem}
+// @Failure      400 {object} wrapper.JSONResult
+// @Security     BearerAuth
+// @Router       /players/v1 [get]
 func (h *Handler) List(c *gin.Context) {
 	l := logger.WithID(h.Logger, ContextName, "List")
 
@@ -117,6 +153,18 @@ func (h *Handler) List(c *gin.Context) {
 	c.JSON(response.Code, response)
 }
 
+// Update godoc
+// @Summary      Update a player
+// @Description  Update a player's information (admin only)
+// @Tags         Players
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "Player ID"
+// @Param        request body schema.RequestPlayerUpdate true "Update player"
+// @Success      200 {object} wrapper.JSONResult{data=schema.ResponsePlayerUpdate}
+// @Failure      400 {object} wrapper.JSONResult
+// @Security     BearerAuth
+// @Router       /players/v1/{id} [put]
 func (h *Handler) Update(c *gin.Context) {
 	l := logger.WithID(h.Logger, ContextName, "Update")
 
@@ -137,6 +185,17 @@ func (h *Handler) Update(c *gin.Context) {
 	c.JSON(response.Code, response)
 }
 
+// Delete godoc
+// @Summary      Delete a player
+// @Description  Delete a player (admin only)
+// @Tags         Players
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "Player ID"
+// @Success      200 {object} wrapper.JSONResult{data=schema.ResponsePlayerDelete}
+// @Failure      400 {object} wrapper.JSONResult
+// @Security     BearerAuth
+// @Router       /players/v1/{id} [delete]
 func (h *Handler) Delete(c *gin.Context) {
 	l := logger.WithID(h.Logger, ContextName, "Delete")
 

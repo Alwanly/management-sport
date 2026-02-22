@@ -70,8 +70,10 @@ func Bootstrap(d *AppDeps) *deps.App {
 
 	v, _ := validator.NewValidator()
 
-	// Swagger
-
+	// Swagger UI — redirect bare paths to the index page
+	e.GET("/swagger", func(c *gin.Context) {
+		c.Redirect(http.StatusMovedPermanently, "/swagger/index.html")
+	})
 	e.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	inst = &deps.App{

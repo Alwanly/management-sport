@@ -23,14 +23,38 @@ func NewHandler(d *deps.App) *Handler {
 
 	group := d.Gin.Group("/reports/v1")
 	group.Use(d.Auth.JwtAuth())
-	group.GET("/goals-per-player", func(c *gin.Context) {
-		resp := h.UseCase.GoalsPerPlayer(c.Request.Context())
-		c.JSON(resp.Code, resp)
-	})
-	group.GET("/team-goals", func(c *gin.Context) {
-		resp := h.UseCase.TeamGoals(c.Request.Context())
-		c.JSON(resp.Code, resp)
-	})
+	group.GET("/goals-per-player", h.GoalsPerPlayer)
+	group.GET("/team-goals", h.TeamGoals)
 
 	return h
+}
+
+// GoalsPerPlayer godoc
+// @Summary      Goals per player
+// @Description  Returns number of goals per player
+// @Tags         Reports
+// @Accept       json
+// @Produce      json
+// @Success      200 {object} wrapper.JSONResult{data=[]schema.ResponseGoalsPerPlayerItem}
+// @Failure      400 {object} wrapper.JSONResult
+// @Security     BearerAuth
+// @Router       /reports/v1/goals-per-player [get]
+func (h *Handler) GoalsPerPlayer(c *gin.Context) {
+	resp := h.UseCase.GoalsPerPlayer(c.Request.Context())
+	c.JSON(resp.Code, resp)
+}
+
+// TeamGoals godoc
+// @Summary      Goals per team
+// @Description  Returns number of goals per team
+// @Tags         Reports
+// @Accept       json
+// @Produce      json
+// @Success      200 {object} wrapper.JSONResult{data=[]schema.ResponseTeamGoalsItem}
+// @Failure      400 {object} wrapper.JSONResult
+// @Security     BearerAuth
+// @Router       /reports/v1/team-goals [get]
+func (h *Handler) TeamGoals(c *gin.Context) {
+	resp := h.UseCase.TeamGoals(c.Request.Context())
+	c.JSON(resp.Code, resp)
 }

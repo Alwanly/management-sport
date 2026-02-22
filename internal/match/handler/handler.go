@@ -52,6 +52,17 @@ func NewHandler(d *deps.App) *Handler {
 	return handler
 }
 
+// Create godoc
+// @Summary      Create a new match
+// @Description  Create a new match (admin only)
+// @Tags         Matches
+// @Accept       json
+// @Produce      json
+// @Param        request body schema.RequestMatchCreate true "Create match"
+// @Success      201 {object} wrapper.JSONResult{data=schema.ResponseMatchCreate}
+// @Failure      400 {object} wrapper.JSONResult
+// @Security     BearerAuth
+// @Router       /matches/v1 [post]
 func (h *Handler) Create(c *gin.Context) {
 	l := logger.WithID(h.Logger, ContextName, "Create")
 
@@ -72,6 +83,17 @@ func (h *Handler) Create(c *gin.Context) {
 	c.JSON(response.Code, response)
 }
 
+// Get godoc
+// @Summary      Get match by id
+// @Description  Retrieve a single match
+// @Tags         Matches
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "Match ID"
+// @Success      200 {object} wrapper.JSONResult{data=schema.ResponseMatchGet}
+// @Failure      400 {object} wrapper.JSONResult
+// @Security     BearerAuth
+// @Router       /matches/v1/{id} [get]
 func (h *Handler) Get(c *gin.Context) {
 	l := logger.WithID(h.Logger, ContextName, "Get")
 
@@ -92,6 +114,20 @@ func (h *Handler) Get(c *gin.Context) {
 	c.JSON(response.Code, response)
 }
 
+// List godoc
+// @Summary      List matches
+// @Description  List matches with pagination
+// @Tags         Matches
+// @Accept       json
+// @Produce      json
+// @Param        page query int false "Page number"
+// @Param        page_size query int false "Page size"
+// @Param        sort_by query string false "Sort by field"
+// @Param        sort_order query string false "Sort order (asc|desc)"
+// @Success      200 {object} wrapper.JSONResult{data=[]schema.ResponseMatchItem}
+// @Failure      400 {object} wrapper.JSONResult
+// @Security     BearerAuth
+// @Router       /matches/v1 [get]
 func (h *Handler) List(c *gin.Context) {
 	l := logger.WithID(h.Logger, ContextName, "List")
 
@@ -117,6 +153,18 @@ func (h *Handler) List(c *gin.Context) {
 	c.JSON(response.Code, response)
 }
 
+// Update godoc
+// @Summary      Update a match
+// @Description  Update match information (admin only)
+// @Tags         Matches
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "Match ID"
+// @Param        request body schema.RequestMatchUpdate true "Update match"
+// @Success      200 {object} wrapper.JSONResult{data=schema.ResponseMatchUpdate}
+// @Failure      400 {object} wrapper.JSONResult
+// @Security     BearerAuth
+// @Router       /matches/v1/{id} [put]
 func (h *Handler) Update(c *gin.Context) {
 	l := logger.WithID(h.Logger, ContextName, "Update")
 
@@ -137,6 +185,17 @@ func (h *Handler) Update(c *gin.Context) {
 	c.JSON(response.Code, response)
 }
 
+// Delete godoc
+// @Summary      Delete a match
+// @Description  Delete a match (admin only)
+// @Tags         Matches
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "Match ID"
+// @Success      200 {object} wrapper.JSONResult{data=schema.ResponseMatchDelete}
+// @Failure      400 {object} wrapper.JSONResult
+// @Security     BearerAuth
+// @Router       /matches/v1/{id} [delete]
 func (h *Handler) Delete(c *gin.Context) {
 	l := logger.WithID(h.Logger, ContextName, "Delete")
 

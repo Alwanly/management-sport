@@ -52,6 +52,17 @@ func NewHandler(d *deps.App) *Handler {
 	return handler
 }
 
+// Create godoc
+// @Summary      Create a new team
+// @Description  Create a new team (admin only)
+// @Tags         Teams
+// @Accept       json
+// @Produce      json
+// @Param        request body schema.RequestTeamCreate true "Create team"
+// @Success      201 {object} wrapper.JSONResult{data=schema.ResponseTeamCreate}
+// @Failure      400 {object} wrapper.JSONResult
+// @Security     BearerAuth
+// @Router       /teams/v1 [post]
 func (h *Handler) Create(c *gin.Context) {
 	l := logger.WithID(h.Logger, ContextName, "Create")
 
@@ -72,6 +83,17 @@ func (h *Handler) Create(c *gin.Context) {
 	c.JSON(response.Code, response)
 }
 
+// Get godoc
+// @Summary      Get team by id
+// @Description  Retrieve a single team
+// @Tags         Teams
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "Team ID"
+// @Success      200 {object} wrapper.JSONResult{data=schema.ResponseTeamGet}
+// @Failure      400 {object} wrapper.JSONResult
+// @Security     BearerAuth
+// @Router       /teams/v1/{id} [get]
 func (h *Handler) Get(c *gin.Context) {
 	l := logger.WithID(h.Logger, ContextName, "Get")
 
@@ -92,6 +114,20 @@ func (h *Handler) Get(c *gin.Context) {
 	c.JSON(response.Code, response)
 }
 
+// List godoc
+// @Summary      List teams
+// @Description  List teams with pagination
+// @Tags         Teams
+// @Accept       json
+// @Produce      json
+// @Param        page query int false "Page number"
+// @Param        page_size query int false "Page size"
+// @Param        sort_by query string false "Sort by field"
+// @Param        sort_order query string false "Sort order (asc|desc)"
+// @Success      200 {object} wrapper.JSONResult{data=[]schema.ResponseTeamItem}
+// @Failure      400 {object} wrapper.JSONResult
+// @Security     BearerAuth
+// @Router       /teams/v1 [get]
 func (h *Handler) List(c *gin.Context) {
 	l := logger.WithID(h.Logger, ContextName, "List")
 
@@ -117,6 +153,18 @@ func (h *Handler) List(c *gin.Context) {
 	c.JSON(response.Code, response)
 }
 
+// Update godoc
+// @Summary      Update a team
+// @Description  Update a team's information (admin only)
+// @Tags         Teams
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "Team ID"
+// @Param        request body schema.RequestTeamUpdate true "Update team"
+// @Success      200 {object} wrapper.JSONResult{data=schema.ResponseTeamUpdate}
+// @Failure      400 {object} wrapper.JSONResult
+// @Security     BearerAuth
+// @Router       /teams/v1/{id} [put]
 func (h *Handler) Update(c *gin.Context) {
 	l := logger.WithID(h.Logger, ContextName, "Update")
 
@@ -137,6 +185,17 @@ func (h *Handler) Update(c *gin.Context) {
 	c.JSON(response.Code, response)
 }
 
+// Delete godoc
+// @Summary      Delete a team
+// @Description  Delete a team (admin only)
+// @Tags         Teams
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "Team ID"
+// @Success      200 {object} wrapper.JSONResult{data=schema.ResponseTeamDelete}
+// @Failure      400 {object} wrapper.JSONResult
+// @Security     BearerAuth
+// @Router       /teams/v1/{id} [delete]
 func (h *Handler) Delete(c *gin.Context) {
 	l := logger.WithID(h.Logger, ContextName, "Delete")
 

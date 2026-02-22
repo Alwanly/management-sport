@@ -51,6 +51,17 @@ func NewHandler(d *deps.App) *Handler {
 	return handler
 }
 
+// Create godoc
+// @Summary      Create a new goal
+// @Description  Create a new goal (admin only)
+// @Tags         Goals
+// @Accept       json
+// @Produce      json
+// @Param        request body schema.RequestGoalCreate true "Create goal"
+// @Success      201 {object} wrapper.JSONResult{data=schema.ResponseGoalCreate}
+// @Failure      400 {object} wrapper.JSONResult
+// @Security     BearerAuth
+// @Router       /goals/v1 [post]
 func (h *Handler) Create(c *gin.Context) {
 	l := logger.WithID(h.Logger, ContextName, "Create")
 
@@ -71,6 +82,17 @@ func (h *Handler) Create(c *gin.Context) {
 	c.JSON(response.Code, response)
 }
 
+// Get godoc
+// @Summary      Get goal by id
+// @Description  Retrieve a single goal
+// @Tags         Goals
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "Goal ID"
+// @Success      200 {object} wrapper.JSONResult{data=schema.ResponseGoalGet}
+// @Failure      400 {object} wrapper.JSONResult
+// @Security     BearerAuth
+// @Router       /goals/v1/{id} [get]
 func (h *Handler) Get(c *gin.Context) {
 	l := logger.WithID(h.Logger, ContextName, "Get")
 
@@ -91,6 +113,20 @@ func (h *Handler) Get(c *gin.Context) {
 	c.JSON(response.Code, response)
 }
 
+// List godoc
+// @Summary      List goals
+// @Description  List goals with pagination
+// @Tags         Goals
+// @Accept       json
+// @Produce      json
+// @Param        page query int false "Page number"
+// @Param        page_size query int false "Page size"
+// @Param        sort_by query string false "Sort by field"
+// @Param        sort_order query string false "Sort order (asc|desc)"
+// @Success      200 {object} wrapper.JSONResult{data=[]schema.ResponseGoalItem}
+// @Failure      400 {object} wrapper.JSONResult
+// @Security     BearerAuth
+// @Router       /goals/v1 [get]
 func (h *Handler) List(c *gin.Context) {
 	l := logger.WithID(h.Logger, ContextName, "List")
 
@@ -116,6 +152,17 @@ func (h *Handler) List(c *gin.Context) {
 	c.JSON(response.Code, response)
 }
 
+// Delete godoc
+// @Summary      Delete a goal
+// @Description  Delete a goal (admin only)
+// @Tags         Goals
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "Goal ID"
+// @Success      200 {object} wrapper.JSONResult{data=schema.ResponseGoalDelete}
+// @Failure      400 {object} wrapper.JSONResult
+// @Security     BearerAuth
+// @Router       /goals/v1/{id} [delete]
 func (h *Handler) Delete(c *gin.Context) {
 	l := logger.WithID(h.Logger, ContextName, "Delete")
 

@@ -56,20 +56,18 @@ func NewHandler(d *deps.App) *Handler {
 	return handler
 }
 
-// AdminLogin godoc
-// @Summary      Admin login
-// @Description  Authenticate admin user and return JWT token
+// Login godoc
+// @Summary      User login
+// @Description  Authenticate user and return JWT token
 // @Tags         Authentication
 // @Accept       json
 // @Produce      json
-// @Param        request body schema.RequestAdminLogin true "Admin login credentials"
-// @Success      200 {object} wrapper.JSONResult{data=schema.ResponseAdminLogin}
+// @Param        request body schema.RequestLogin true "Login credentials"
+// @Success      200 {object} wrapper.JSONResult{data=schema.ResponseLogin}
 // @Failure      400 {object} wrapper.JSONResult
 // @Failure      401 {object} wrapper.JSONResult
-// @Failure      403 {object} wrapper.JSONResult
 // @Failure      500 {object} wrapper.JSONResult
-// @Router       /auth/v1/admin/login [post]
-
+// @Router       /auth/v1/login [post]
 func (h *Handler) Login(c *gin.Context) {
 	l := logger.WithID(h.Logger, ContextName, "Login")
 
@@ -90,19 +88,19 @@ func (h *Handler) Login(c *gin.Context) {
 	c.JSON(response.Code, response)
 }
 
-// Register godoc
-// @Summary      Register new user
-// @Description  Create a new user account with username and password
+// AdminLogin godoc
+// @Summary      Admin login
+// @Description  Authenticate admin user and return JWT token
 // @Tags         Authentication
 // @Accept       json
 // @Produce      json
-// @Param        request body schema.RequestRegister true "Registration details"
-// @Success      201 {object} wrapper.JSONResult{data=schema.ResponseRegister}
+// @Param        request body schema.RequestAdminLogin true "Admin login credentials"
+// @Success      200 {object} wrapper.JSONResult{data=schema.ResponseAdminLogin}
 // @Failure      400 {object} wrapper.JSONResult
-// @Failure      409 {object} wrapper.JSONResult
+// @Failure      401 {object} wrapper.JSONResult
+// @Failure      403 {object} wrapper.JSONResult
 // @Failure      500 {object} wrapper.JSONResult
-// @Router       /auth/v1/register [post]
-
+// @Router       /auth/v1/admin/login [post]
 func (h *Handler) AdminLogin(c *gin.Context) {
 	l := logger.WithID(h.Logger, ContextName, "AdminLogin")
 
@@ -123,6 +121,18 @@ func (h *Handler) AdminLogin(c *gin.Context) {
 	c.JSON(response.Code, response)
 }
 
+// Register godoc
+// @Summary      Register new user
+// @Description  Create a new user account with username and password
+// @Tags         Authentication
+// @Accept       json
+// @Produce      json
+// @Param        request body schema.RequestRegister true "Registration details"
+// @Success      201 {object} wrapper.JSONResult{data=schema.ResponseRegister}
+// @Failure      400 {object} wrapper.JSONResult
+// @Failure      409 {object} wrapper.JSONResult
+// @Failure      500 {object} wrapper.JSONResult
+// @Router       /auth/v1/register [post]
 func (h *Handler) Register(c *gin.Context) {
 	l := logger.WithID(h.Logger, ContextName, "Register")
 

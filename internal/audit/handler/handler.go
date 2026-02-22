@@ -34,6 +34,18 @@ func NewHandler(d *deps.App) *Handler {
 	return h
 }
 
+// List godoc
+// @Summary      List audit logs
+// @Description  List audit logs (admin only)
+// @Tags         Audits
+// @Accept       json
+// @Produce      json
+// @Param        page query int false "Page number"
+// @Param        page_size query int false "Page size"
+// @Success      200 {object} wrapper.JSONResult{data=[]schema.ResponseAuditItem}
+// @Failure      400 {object} wrapper.JSONResult
+// @Security     BearerAuth
+// @Router       /audits/v1 [get]
 func (h *Handler) List(c *gin.Context) {
 	l := logger.WithID(h.Logger, ContextName, "List")
 	model := &schema.RequestAuditList{Page: 1, PageSize: 10}
@@ -51,6 +63,17 @@ func (h *Handler) List(c *gin.Context) {
 	c.JSON(resp.Code, resp)
 }
 
+// Get godoc
+// @Summary      Get audit by id
+// @Description  Retrieve a single audit log (admin only)
+// @Tags         Audits
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "Audit ID"
+// @Success      200 {object} wrapper.JSONResult{data=schema.ResponseAuditGet}
+// @Failure      400 {object} wrapper.JSONResult
+// @Security     BearerAuth
+// @Router       /audits/v1/{id} [get]
 func (h *Handler) Get(c *gin.Context) {
 	l := logger.WithID(h.Logger, ContextName, "Get")
 	model := &schema.RequestAuditGet{}

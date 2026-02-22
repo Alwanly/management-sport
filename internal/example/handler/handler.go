@@ -48,7 +48,17 @@ func NewHandler(d *deps.App) *Handler {
 	return handler
 }
 
-// Create creates a new book.
+// Create godoc
+// @Summary      Create a new book
+// @Description  Create a new book
+// @Tags         Books
+// @Accept       json
+// @Produce      json
+// @Param        request body schema.RequestBookCreate true "Create book"
+// @Success      201 {object} wrapper.JSONResult{data=schema.ResponseBookCreate}
+// @Failure      400 {object} wrapper.JSONResult
+// @Security     BearerAuth
+// @Router       /books/v1 [post]
 func (h *Handler) Create(c *gin.Context) {
 	l := logger.WithID(h.Logger, ContextName, "Create")
 
@@ -72,7 +82,20 @@ func (h *Handler) Create(c *gin.Context) {
 	c.JSON(response.Code, response)
 }
 
-// List returns a list of books.
+// List godoc
+// @Summary      List books
+// @Description  List books with pagination
+// @Tags         Books
+// @Accept       json
+// @Produce      json
+// @Param        page query int false "Page number"
+// @Param        page_size query int false "Page size"
+// @Param        sort_by query string false "Sort by field"
+// @Param        sort_order query string false "Sort order (asc|desc)"
+// @Success      200 {object} wrapper.JSONResult{data=[]schema.ResponseBookGet}
+// @Failure      400 {object} wrapper.JSONResult
+// @Security     BearerAuth
+// @Router       /books/v1 [get]
 func (h *Handler) List(c *gin.Context) {
 	l := logger.WithID(h.Logger, ContextName, "List")
 
@@ -101,7 +124,17 @@ func (h *Handler) List(c *gin.Context) {
 	c.JSON(response.Code, response)
 }
 
-// Get returns a book by ID.
+// Get godoc
+// @Summary      Get book by id
+// @Description  Retrieve a single book
+// @Tags         Books
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "Book ID"
+// @Success      200 {object} wrapper.JSONResult{data=schema.ResponseBookGet}
+// @Failure      400 {object} wrapper.JSONResult
+// @Security     BearerAuth
+// @Router       /books/v1/{id} [get]
 func (h *Handler) Get(c *gin.Context) {
 	l := logger.WithID(h.Logger, ContextName, "Get")
 
@@ -125,7 +158,18 @@ func (h *Handler) Get(c *gin.Context) {
 	c.JSON(response.Code, response)
 }
 
-// Update updates a book.
+// Update godoc
+// @Summary      Update a book
+// @Description  Update a book's information
+// @Tags         Books
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "Book ID"
+// @Param        request body schema.RequestBookUpdate true "Update book"
+// @Success      200 {object} wrapper.JSONResult{data=schema.ResponseBookUpdate}
+// @Failure      400 {object} wrapper.JSONResult
+// @Security     BearerAuth
+// @Router       /books/v1/{id} [put]
 func (h *Handler) Update(c *gin.Context) {
 	l := logger.WithID(h.Logger, ContextName, "Update")
 
@@ -149,7 +193,17 @@ func (h *Handler) Update(c *gin.Context) {
 	c.JSON(response.Code, response)
 }
 
-// Delete deletes a book.
+// Delete godoc
+// @Summary      Delete a book
+// @Description  Delete a book
+// @Tags         Books
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "Book ID"
+// @Success      200 {object} wrapper.JSONResult{data=schema.ResponseBookDelete}
+// @Failure      400 {object} wrapper.JSONResult
+// @Security     BearerAuth
+// @Router       /books/v1/{id} [delete]
 func (h *Handler) Delete(c *gin.Context) {
 	l := logger.WithID(h.Logger, ContextName, "Delete")
 

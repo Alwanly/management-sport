@@ -44,7 +44,7 @@ func NewHandler(d *deps.App) *Handler {
 
 	// Admin endpoints (write operations)
 	admin := d.Gin.Group("/teams/v1")
-	admin.Use(d.Auth.AdminAuth())
+	admin.Use(d.Auth.JwtAuth(), d.Auth.AdminAuth())
 	admin.POST("/", handler.Create)
 	admin.PUT(":id", handler.Update)
 	admin.DELETE(":id", handler.Delete)

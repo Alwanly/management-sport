@@ -54,30 +54,31 @@ func (a *AuthMiddleware) JwtAuth() gin.HandlerFunc {
 
 func (a *AuthMiddleware) AdminAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// First run JWT auth
-		a.JwtAuth()(c)
-
-		// If JWT auth failed, it would have aborted already
-		if c.IsAborted() {
-			return
-		}
-
-		// Get user data from context
+		// JWT auth should have already run before this middleware
+		// Get user data from context (set by JwtAuth)
 		authUserValue, exists := c.Get(LocalTokenKey)
 		if !exists {
-			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "Access denied: admin role required"})
+			// If no token in context, JWT auth was not run first
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"message": "Authentication required",
+			})
 			return
 		}
 
+		// Type assert to AuthUserData
 		authUser, ok := authUserValue.(*AuthUserData)
 		if !ok {
-			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "Access denied: invalid user data"})
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+				"message": "Access denied: invalid user data",
+			})
 			return
 		}
 
 		// Check if user has admin role
 		if authUser.Role != "admin" {
-			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "Access denied: admin role required"})
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+				"message": "Access denied: admin role required",
+			})
 			return
 		}
 

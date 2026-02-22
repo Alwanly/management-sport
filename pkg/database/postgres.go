@@ -174,7 +174,6 @@ func MigrateIfNeed(db *gorm.DB) error {
 	log.Println("Running database migration if necessary...")
 	db.AutoMigrate(
 		&model.User{},
-		&model.Book{},
 		&model.Team{},
 		&model.Player{},
 		&model.Match{},

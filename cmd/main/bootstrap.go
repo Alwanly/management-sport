@@ -18,7 +18,6 @@ import (
 	_ "github.com/Alwanly/management-sport/api"
 	audit_handler "github.com/Alwanly/management-sport/internal/audit/handler"
 	auth_handler "github.com/Alwanly/management-sport/internal/auth/handler"
-	book_handler "github.com/Alwanly/management-sport/internal/example/handler"
 	goal_handler "github.com/Alwanly/management-sport/internal/goal/handler"
 	match_handler "github.com/Alwanly/management-sport/internal/match/handler"
 	player_handler "github.com/Alwanly/management-sport/internal/player/handler"
@@ -97,7 +96,6 @@ func Bootstrap(d *AppDeps) *deps.App {
 	e.GET("/live", healthHandler.Liveness)
 
 	// Register handlers
-	book_handler.NewHandler(inst)
 	team_handler.NewHandler(inst)
 	player_handler.NewHandler(inst)
 	match_handler.NewHandler(inst)

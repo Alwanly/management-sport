@@ -35,3 +35,25 @@ type MatchScoreInfo struct {
 	Home int `json:"home"`
 	Away int `json:"away"`
 }
+
+type ResponseMatchScorer struct {
+	PlayerID     string `json:"player_id"`
+	PlayerName   string `json:"player_name"`
+	TeamName     string `json:"team_name"`
+	Position     string `json:"position"`
+	ShirtNumber  int    `json:"shirt_number"`
+	MinuteScored int    `json:"minute_scored"`
+}
+
+type ResponseTeamStatistics struct {
+	TeamID             string `json:"team_id"`
+	TeamName           string `json:"team_name"`
+	CumulativeHomeWins int64  `json:"cumulative_home_wins"`
+	CumulativeAwayWins int64  `json:"cumulative_away_wins"`
+}
+
+type ResponseEnhancedMatchReport struct {
+	Matches        []ResponseMatchReportItem         `json:"matches"`
+	Scorers        map[string][]ResponseMatchScorer  `json:"scorers"`
+	TeamStatistics map[string]ResponseTeamStatistics `json:"team_statistics"`
+}

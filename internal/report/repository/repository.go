@@ -16,6 +16,9 @@ type IRepository interface {
 	GoalsPerPlayer(context.Context) ([]GoalsPerPlayerRow, error)
 	TeamGoals(context.Context) ([]TeamGoalsRow, error)
 	MatchReport(context.Context) ([]MatchReportRow, error)
+	GetMatchScorers(context.Context, string) ([]MatchScorerRow, error)
+	GetTeamCumulativeHomeWins(context.Context, string, time.Time) (int64, error)
+	GetTeamCumulativeAwayWins(context.Context, string, time.Time) (int64, error)
 }
 
 type MatchReportRow struct {
@@ -41,6 +44,15 @@ type GoalsPerPlayerRow struct {
 type TeamGoalsRow struct {
 	TeamID string
 	Goals  int64
+}
+
+type MatchScorerRow struct {
+	PlayerID     string
+	PlayerName   string
+	TeamName     string
+	Position     string
+	ShirtNumber  int
+	MinuteScored int
 }
 
 func NewRepository(db database.IDBService) IRepository {
@@ -101,4 +113,57 @@ func (r *Repository) MatchReport(ctx context.Context) ([]MatchReportRow, error) 
 		return nil, err
 	}
 	return rows, nil
+}
+
+func (r *Repository) GetMatchScorers(ctx context.Context, matchID string) ([]MatchScorerRow, error) {
+	var rows []MatchScorerRow
+	tx := r.DB.GetTransaction(ctx).
+		Table("goals").
+		Select(`
+			players.id as player_id,
+			players.name as player_name,
+			teams.name as team_name,
+			players.position,
+			players.shirt_number,
+			goals.minute_scored
+		`).
+		Joins("INNER JOIN players ON players.id = goals.player_id").
+		Joins("INNER JOIN teams ON teams.id = players.team_id").
+		Where("goals.match_id = ?", matchID).
+		Order("goals.minute_scored ASC")
+
+	if err := tx.Scan(&rows).Error; err != nil {
+		return nil, err
+	}
+	return rows, nil
+}
+
+func (r *Repository) GetTeamCumulativeHomeWins(ctx context.Context, teamID string, upToDate time.Time) (int64, error) {
+	var count int64
+	tx := r.DB.GetTransaction(ctx).
+		Model(&model.Match{}).
+		Where("home_team_id = ?", teamID).
+		Where("status = ?", "finished").
+		Where("match_date <= ?", upToDate).
+		Where("home_score > away_score")
+
+	if err := tx.Count(&count).Error; err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func (r *Repository) GetTeamCumulativeAwayWins(ctx context.Context, teamID string, upToDate time.Time) (int64, error) {
+	var count int64
+	tx := r.DB.GetTransaction(ctx).
+		Model(&model.Match{}).
+		Where("away_team_id = ?", teamID).
+		Where("status = ?", "finished").
+		Where("match_date <= ?", upToDate).
+		Where("away_score > home_score")
+
+	if err := tx.Count(&count).Error; err != nil {
+		return 0, err
+	}
+	return count, nil
 }

@@ -1,13 +1,11 @@
-# Codebase Golang
+# Management Sport — Sports Management API
 
-This is a Go boilerplate/codebase project designed for learning and rapid API development.
-
-This repository follows a clean architecture pattern and Domain-Driven Design (DDD) principles, inspired by established Go codebase templates: [1](https://github.com/fahminlb33/devoria1-wtc-backend).
+This repository implements a Sports Management API system written in Go. It follows a clean architecture pattern and Domain-Driven Design (DDD) principles to provide a maintainable, testable REST API for managing teams, players, matches, goals, reports and audit logs.
 
 ## Features
 
 - ✅ Clean Architecture & Domain-Driven Design (DDD)
-- ✅ RESTful API with Fiber framework
+- ✅ RESTful API with Gin framework
 - ✅ PostgreSQL database with GORM ORM
 - ✅ Redis caching support
 - ✅ JWT & Basic Authentication
@@ -23,14 +21,14 @@ This repository follows a clean architecture pattern and Domain-Driven Design (D
 
 This project uses several libraries to facilitate development and ensure code quality:
 
-- **Fiber**: Fast and lightweight web framework for building APIs in Go, used for routing and handling HTTP requests
+- **Gin**: HTTP web framework used for routing and handling requests
 - **GORM**: Feature-rich ORM library for database interactions with PostgreSQL
-- **Viper**: Configuration management library for handling environment variables and config files
-- **Zap**: High-performance structured logger for application events
-- **Testify**: Testing toolkit providing assertions and mocking capabilities
-- **Mockery**: Mock code auto-generator for creating test doubles
-- **Swagger**: API documentation generator with interactive UI
-- **Redis**: In-memory data structure store for caching
+- **Viper**: Configuration management for environment variables and config files
+- **Zap**: High-performance structured logger
+- **go-redis/redis**: Redis client for caching
+- **golang-jwt/jwt**: JWT handling for authentication
+- **Swag**: Swagger documentation generator
+- **Testify & Mockery**: Testing and mock generation tools
 
 ## Project Structure
 
@@ -57,14 +55,19 @@ go-codebase/
 │   └── wrapper/           # Response wrapper utilities
 │
 ├── internal/              # Private application code (domain logic)
-│   └── example/           # Example domain (book management)
-│       ├── handler/       # HTTP handlers
-│       ├── repository/    # Data access layer
-│       ├── schema/        # Request/response schemas
-│       └── usecase/       # Business logic
+│   ├── auth/              # Authentication domain (handlers, usecase, repository)
+│   ├── team/              # Teams domain (handlers, usecase, repository)
+│   ├── player/            # Players domain
+│   ├── match/             # Matches domain
+│   ├── goal/              # Goals domain
+│   ├── report/            # Reports and statistics
+│   └── audit/             # Audit logging
 │
 ├── model/                 # Database models
-│   ├── book.go            # Book model
+│   ├── team.go            # Team model
+│   ├── player.go          # Player model
+│   ├── match.go           # Match model
+│   ├── goal.go            # Goal model
 │   └── user.go            # User model
 │
 ├── config/                # Configuration management
@@ -121,10 +124,14 @@ go-codebase/
 
 4. **Configure database**
 
-   Update the following in your `.env` file:
+   Update the following in your `.env` file (example):
    ```env
    POSTGRES_URI=postgres://user:password@localhost:5432/yourdb
    REDIS_URI=redis://localhost:6379
+   JWT_SECRET=your_jwt_secret
+   UPLOAD_DIRECTORY=./images
+   MAX_UPLOAD_SIZE=5242880 # 5MB
+   ALLOWED_IMAGE_TYPES=png,jpg,jpeg
    ```
 
 5. **Generate RSA keys for JWT (optional)**
@@ -227,33 +234,43 @@ make lint
 
 ## API Endpoints
 
-### Authentication
+### Authentication & API Overview
 
-All `/books/v1/*` endpoints require JWT authentication.
+Authentication flow:
 
-**Example book endpoints:**
+- `POST /auth/v1/register` - Register a new user (initial setup may require BasicAuth depending on deployment)
+- `POST /auth/v1/login` - Login to receive a JWT token
 
-- `POST /books/v1/` - Create a new book
-- `GET /books/v1/` - List all books
-- `GET /books/v1/:id` - Get book by ID
-- `PUT /books/v1/:id` - Update book
-- `DELETE /books/v1/:id` - Delete book
+Use the received token in requests to protected endpoints with header:
+
+```
+Authorization: Bearer <token>
+```
+
+Primary API domains:
+
+- **Authentication:** `/auth/v1/*` - Register, login (user/admin)
+- **Teams:** `/teams/v1/*` - CRUD operations with logo upload (admin for create/update/delete)
+- **Players:** `/players/v1/*` - CRUD operations and team assignment
+- **Matches:** `/matches/v1/*` - Schedule matches, update status (scheduled → ongoing → finished)
+- **Goals:** `/goals/v1/*` - Record goals linked to a player and match
+- **Reports:** `/reports/v1/*` - Statistics (goals per player/team, match reports)
+- **Audits:** `/audits/v1/*` - Administrative audit logs (admin-only)
 
 ## Environment Variables
 
-Key environment variables (see `.env.example` for complete list):
+Critical environment variables (see `.env.example` for a fuller list):
 
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `ENV` | Environment (development/production) | development |
 | `PORT` | HTTP server port | 9000 |
-| `SERVICE_NAME` | Service name for logging | go-codebase |
 | `POSTGRES_URI` | PostgreSQL connection string | Required |
 | `REDIS_URI` | Redis connection string | Optional |
-| `JWT_ISSUER` | JWT token issuer | codebase |
-| `JWT_AUDIENCE` | JWT token audience | codebase |
-| `PRIVATE_KEY` | RSA private key for JWT signing | Required |
-| `PUBLIC_KEY` | RSA public key for JWT verification | Required |
+| `JWT_SECRET` | Secret key for signing JWT tokens (HMAC mode) | Required |
+| `UPLOAD_DIRECTORY` | Directory path for uploaded files (team logos) | ./images |
+| `MAX_UPLOAD_SIZE` | Maximum upload size in bytes | 5242880 (5MB) |
+| `ALLOWED_IMAGE_TYPES` | Comma-separated allowed image extensions | png,jpg,jpeg |
 
 ## Contributing
 

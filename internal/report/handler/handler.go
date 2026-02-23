@@ -61,12 +61,12 @@ func (h *Handler) TeamGoals(c *gin.Context) {
 }
 
 // MatchReport godoc
-// @Summary      Match report
-// @Description  Returns finished matches with schedule, teams, scores, and results
+// @Summary      Enhanced match report
+// @Description  Returns finished matches with schedule, teams, scores, results, match scorers, and cumulative win statistics
 // @Tags         Reports
 // @Accept       json
 // @Produce      json
-// @Success      200 {object} wrapper.JSONResult{data=[]schema.ResponseMatchReportItem}
+// @Success      200 {object} wrapper.JSONResult{data=schema.ResponseEnhancedMatchReport}
 // @Failure      400 {object} wrapper.JSONResult
 // @Failure      500 {object} wrapper.JSONResult
 // @Security     BearerAuth

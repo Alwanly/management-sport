@@ -135,6 +135,11 @@ const docTemplate = `{
         },
         "/auth/v1/admin/login": {
             "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Authenticate admin user and return JWT token",
                 "consumes": [
                     "application/json"
@@ -205,6 +210,11 @@ const docTemplate = `{
         },
         "/auth/v1/login": {
             "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Authenticate user and return JWT token",
                 "consumes": [
                     "application/json"
@@ -269,6 +279,11 @@ const docTemplate = `{
         },
         "/auth/v1/register": {
             "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Create a new user account with username and password",
                 "consumes": [
                     "application/json"
@@ -869,6 +884,116 @@ const docTemplate = `{
                 }
             }
         },
+        "/matches/v1/{id}/status/finished": {
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update the status of a match to finished (admin only)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Matches"
+                ],
+                "summary": "Update match status to finished",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Match ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/wrapper.JSONResult"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/schema.ResponseMatchUpdateStatus"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/wrapper.JSONResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/matches/v1/{id}/status/ongoing": {
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update the status of a match (admin only)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Matches"
+                ],
+                "summary": "Update match status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Match ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/wrapper.JSONResult"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/schema.ResponseMatchUpdateStatus"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/wrapper.JSONResult"
+                        }
+                    }
+                }
+            }
+        },
         "/players/v1": {
             "get": {
                 "security": [
@@ -1225,7 +1350,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Returns finished matches with schedule, teams, scores, and results",
+                "description": "Returns finished matches with schedule, teams, scores, results, match scorers, and cumulative win statistics",
                 "consumes": [
                     "application/json"
                 ],
@@ -1235,7 +1360,7 @@ const docTemplate = `{
                 "tags": [
                     "Reports"
                 ],
-                "summary": "Match report",
+                "summary": "Enhanced match report",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1248,10 +1373,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/schema.ResponseMatchReportItem"
-                                            }
+                                            "$ref": "#/definitions/schema.ResponseEnhancedMatchReport"
                                         }
                                     }
                                 }
@@ -1691,17 +1813,6 @@ const docTemplate = `{
                 "StatusCodeSequenceError"
             ]
         },
-        "middleware.AuthUserData": {
-            "type": "object",
-            "properties": {
-                "role": {
-                    "type": "string"
-                },
-                "userId": {
-                    "type": "string"
-                }
-            }
-        },
         "schema.MatchScoreInfo": {
             "type": "object",
             "properties": {
@@ -1753,9 +1864,6 @@ const docTemplate = `{
                 "player_id"
             ],
             "properties": {
-                "authUserData": {
-                    "$ref": "#/definitions/middleware.AuthUserData"
-                },
                 "match_id": {
                     "type": "string"
                 },
@@ -1795,9 +1903,6 @@ const docTemplate = `{
                 "match_time"
             ],
             "properties": {
-                "authUserData": {
-                    "$ref": "#/definitions/middleware.AuthUserData"
-                },
                 "away_team_id": {
                     "type": "string"
                 },
@@ -1817,14 +1922,10 @@ const docTemplate = `{
             "required": [
                 "away_team_id",
                 "home_team_id",
-                "id",
                 "match_date",
                 "match_time"
             ],
             "properties": {
-                "authUserData": {
-                    "$ref": "#/definitions/middleware.AuthUserData"
-                },
                 "away_score": {
                     "type": "integer",
                     "minimum": 0
@@ -1837,9 +1938,6 @@ const docTemplate = `{
                     "minimum": 0
                 },
                 "home_team_id": {
-                    "type": "string"
-                },
-                "id": {
                     "type": "string"
                 },
                 "match_date": {
@@ -1867,9 +1965,6 @@ const docTemplate = `{
                 "team_id"
             ],
             "properties": {
-                "authUserData": {
-                    "$ref": "#/definitions/middleware.AuthUserData"
-                },
                 "height_cm": {
                     "type": "integer",
                     "minimum": 0
@@ -1911,21 +2006,14 @@ const docTemplate = `{
         "schema.RequestPlayerUpdate": {
             "type": "object",
             "required": [
-                "id",
                 "name",
                 "position",
                 "shirt_number"
             ],
             "properties": {
-                "authUserData": {
-                    "$ref": "#/definitions/middleware.AuthUserData"
-                },
                 "height_cm": {
                     "type": "integer",
                     "minimum": 0
-                },
-                "id": {
-                    "type": "string"
                 },
                 "name": {
                     "type": "string",
@@ -2039,6 +2127,32 @@ const docTemplate = `{
                 },
                 "user_role": {
                     "type": "string"
+                }
+            }
+        },
+        "schema.ResponseEnhancedMatchReport": {
+            "type": "object",
+            "properties": {
+                "matches": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/schema.ResponseMatchReportItem"
+                    }
+                },
+                "scorers": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/schema.ResponseMatchScorer"
+                        }
+                    }
+                },
+                "team_statistics": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/schema.ResponseTeamStatistics"
+                    }
                 }
             }
         },
@@ -2201,7 +2315,38 @@ const docTemplate = `{
                 }
             }
         },
+        "schema.ResponseMatchScorer": {
+            "type": "object",
+            "properties": {
+                "minute_scored": {
+                    "type": "integer"
+                },
+                "player_id": {
+                    "type": "string"
+                },
+                "player_name": {
+                    "type": "string"
+                },
+                "position": {
+                    "type": "string"
+                },
+                "shirt_number": {
+                    "type": "integer"
+                },
+                "team_name": {
+                    "type": "string"
+                }
+            }
+        },
         "schema.ResponseMatchUpdate": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "schema.ResponseMatchUpdateStatus": {
             "type": "object",
             "properties": {
                 "id": {
@@ -2241,6 +2386,9 @@ const docTemplate = `{
                 "team_id": {
                     "type": "string"
                 },
+                "team_name": {
+                    "type": "string"
+                },
                 "weight_kg": {
                     "type": "integer"
                 }
@@ -2262,6 +2410,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "team_id": {
+                    "type": "string"
+                },
+                "team_name": {
                     "type": "string"
                 }
             }
@@ -2346,6 +2497,23 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "schema.ResponseTeamStatistics": {
+            "type": "object",
+            "properties": {
+                "cumulative_away_wins": {
+                    "type": "integer"
+                },
+                "cumulative_home_wins": {
+                    "type": "integer"
+                },
+                "team_id": {
+                    "type": "string"
+                },
+                "team_name": {
                     "type": "string"
                 }
             }

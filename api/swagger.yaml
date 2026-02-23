@@ -18,13 +18,6 @@ definitions:
     - StatusCodeUserOrPasswordInvalid
     - StatusCodeInternalServerError
     - StatusCodeSequenceError
-  middleware.AuthUserData:
-    properties:
-      role:
-        type: string
-      userId:
-        type: string
-    type: object
   schema.MatchScoreInfo:
     properties:
       away:
@@ -56,8 +49,6 @@ definitions:
     type: object
   schema.RequestGoalCreate:
     properties:
-      authUserData:
-        $ref: '#/definitions/middleware.AuthUserData'
       match_id:
         type: string
       minute_scored:
@@ -85,8 +76,6 @@ definitions:
     type: object
   schema.RequestMatchCreate:
     properties:
-      authUserData:
-        $ref: '#/definitions/middleware.AuthUserData'
       away_team_id:
         type: string
       home_team_id:
@@ -103,8 +92,6 @@ definitions:
     type: object
   schema.RequestMatchUpdate:
     properties:
-      authUserData:
-        $ref: '#/definitions/middleware.AuthUserData'
       away_score:
         minimum: 0
         type: integer
@@ -114,8 +101,6 @@ definitions:
         minimum: 0
         type: integer
       home_team_id:
-        type: string
-      id:
         type: string
       match_date:
         type: string
@@ -130,14 +115,11 @@ definitions:
     required:
     - away_team_id
     - home_team_id
-    - id
     - match_date
     - match_time
     type: object
   schema.RequestPlayerCreate:
     properties:
-      authUserData:
-        $ref: '#/definitions/middleware.AuthUserData'
       height_cm:
         minimum: 0
         type: integer
@@ -175,13 +157,9 @@ definitions:
     type: object
   schema.RequestPlayerUpdate:
     properties:
-      authUserData:
-        $ref: '#/definitions/middleware.AuthUserData'
       height_cm:
         minimum: 0
         type: integer
-      id:
-        type: string
       name:
         maxLength: 255
         minLength: 1
@@ -201,7 +179,6 @@ definitions:
         minimum: 0
         type: integer
     required:
-    - id
     - name
     - position
     - shirt_number
@@ -265,6 +242,23 @@ definitions:
         type: string
       user_role:
         type: string
+    type: object
+  schema.ResponseEnhancedMatchReport:
+    properties:
+      matches:
+        items:
+          $ref: '#/definitions/schema.ResponseMatchReportItem'
+        type: array
+      scorers:
+        additionalProperties:
+          items:
+            $ref: '#/definitions/schema.ResponseMatchScorer'
+          type: array
+        type: object
+      team_statistics:
+        additionalProperties:
+          $ref: '#/definitions/schema.ResponseTeamStatistics'
+        type: object
     type: object
   schema.ResponseGoalCreate:
     properties:
@@ -369,7 +363,27 @@ definitions:
       status:
         type: string
     type: object
+  schema.ResponseMatchScorer:
+    properties:
+      minute_scored:
+        type: integer
+      player_id:
+        type: string
+      player_name:
+        type: string
+      position:
+        type: string
+      shirt_number:
+        type: integer
+      team_name:
+        type: string
+    type: object
   schema.ResponseMatchUpdate:
+    properties:
+      id:
+        type: string
+    type: object
+  schema.ResponseMatchUpdateStatus:
     properties:
       id:
         type: string
@@ -395,6 +409,8 @@ definitions:
         type: integer
       team_id:
         type: string
+      team_name:
+        type: string
       weight_kg:
         type: integer
     type: object
@@ -409,6 +425,8 @@ definitions:
       shirt_number:
         type: integer
       team_id:
+        type: string
+      team_name:
         type: string
     type: object
   schema.ResponsePlayerUpdate:
@@ -463,6 +481,17 @@ definitions:
       logo_url:
         type: string
       name:
+        type: string
+    type: object
+  schema.ResponseTeamStatistics:
+    properties:
+      cumulative_away_wins:
+        type: integer
+      cumulative_home_wins:
+        type: integer
+      team_id:
+        type: string
+      team_name:
         type: string
     type: object
   schema.ResponseTeamUpdate:
@@ -608,6 +637,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BasicAuth: []
       summary: Admin login
       tags:
       - Authentication
@@ -647,6 +678,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BasicAuth: []
       summary: User login
       tags:
       - Authentication
@@ -686,6 +719,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BasicAuth: []
       summary: Register new user
       tags:
       - Authentication
@@ -1006,6 +1041,70 @@ paths:
       summary: Update a match
       tags:
       - Matches
+  /matches/v1/{id}/status/finished:
+    patch:
+      consumes:
+      - application/json
+      description: Update the status of a match to finished (admin only)
+      parameters:
+      - description: Match ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/wrapper.JSONResult'
+            - properties:
+                data:
+                  $ref: '#/definitions/schema.ResponseMatchUpdateStatus'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BearerAuth: []
+      summary: Update match status to finished
+      tags:
+      - Matches
+  /matches/v1/{id}/status/ongoing:
+    patch:
+      consumes:
+      - application/json
+      description: Update the status of a match (admin only)
+      parameters:
+      - description: Match ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/wrapper.JSONResult'
+            - properties:
+                data:
+                  $ref: '#/definitions/schema.ResponseMatchUpdateStatus'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BearerAuth: []
+      summary: Update match status
+      tags:
+      - Matches
   /players/v1:
     get:
       consumes:
@@ -1215,7 +1314,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: Returns finished matches with schedule, teams, scores, and results
+      description: Returns finished matches with schedule, teams, scores, results,
+        match scorers, and cumulative win statistics
       produces:
       - application/json
       responses:
@@ -1226,9 +1326,7 @@ paths:
             - $ref: '#/definitions/wrapper.JSONResult'
             - properties:
                 data:
-                  items:
-                    $ref: '#/definitions/schema.ResponseMatchReportItem'
-                  type: array
+                  $ref: '#/definitions/schema.ResponseEnhancedMatchReport'
               type: object
         "400":
           description: Bad Request
@@ -1240,7 +1338,7 @@ paths:
             $ref: '#/definitions/wrapper.JSONResult'
       security:
       - BearerAuth: []
-      summary: Match report
+      summary: Enhanced match report
       tags:
       - Reports
   /reports/v1/team-goals:

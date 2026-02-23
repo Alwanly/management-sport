@@ -49,6 +49,7 @@ func NewHandler(d *deps.App) *Handler {
 
 	// Public authentication endpoints
 	auth := d.Gin.Group("/auth/v1")
+	auth.Use(d.Auth.BasicAuth()) // Allow access without JWT for login and registration
 	auth.POST("/register", handler.Register)
 	auth.POST("/login", handler.Login)
 	auth.POST("/admin/login", handler.AdminLogin)
@@ -67,6 +68,7 @@ func NewHandler(d *deps.App) *Handler {
 // @Failure      400 {object} wrapper.JSONResult
 // @Failure      401 {object} wrapper.JSONResult
 // @Failure      500 {object} wrapper.JSONResult
+// @Security     BasicAuth
 // @Router       /auth/v1/login [post]
 func (h *Handler) Login(c *gin.Context) {
 	l := logger.WithID(h.Logger, ContextName, "Login")
@@ -100,6 +102,7 @@ func (h *Handler) Login(c *gin.Context) {
 // @Failure      401 {object} wrapper.JSONResult
 // @Failure      403 {object} wrapper.JSONResult
 // @Failure      500 {object} wrapper.JSONResult
+// @Security     BasicAuth
 // @Router       /auth/v1/admin/login [post]
 func (h *Handler) AdminLogin(c *gin.Context) {
 	l := logger.WithID(h.Logger, ContextName, "AdminLogin")
@@ -132,6 +135,7 @@ func (h *Handler) AdminLogin(c *gin.Context) {
 // @Failure      400 {object} wrapper.JSONResult
 // @Failure      409 {object} wrapper.JSONResult
 // @Failure      500 {object} wrapper.JSONResult
+// @Security     BasicAuth
 // @Router       /auth/v1/register [post]
 func (h *Handler) Register(c *gin.Context) {
 	l := logger.WithID(h.Logger, ContextName, "Register")

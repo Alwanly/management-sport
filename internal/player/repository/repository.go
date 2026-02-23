@@ -9,6 +9,7 @@ import (
 	"github.com/Alwanly/management-sport/pkg/database"
 	"github.com/Alwanly/management-sport/pkg/redis"
 	"github.com/Alwanly/management-sport/pkg/utils"
+	"gorm.io/gorm"
 )
 
 const ContextName = "Internal.Player.Repository"
@@ -24,6 +25,7 @@ type IRepository interface {
 	List(context.Context, schema.RequestPlayerList) ([]model.Player, int64)
 	Update(context.Context, *model.Player) error
 	Delete(context.Context, string) error
+	GetTeamName(ctx context.Context, teamID string) (string, error)
 }
 
 func NewRepository(r Repository) IRepository {
@@ -51,11 +53,16 @@ func (r *Repository) Get(ctx context.Context, id string) *model.Player {
 func (r *Repository) List(ctx context.Context, req schema.RequestPlayerList) ([]model.Player, int64) {
 	var players []model.Player
 	var total int64
-	tx := r.DB.GetTransaction(ctx).Where("deleted_at IS NULL")
+	tx := r.DB.GetTransaction(ctx).
+		Model(&model.Player{}).
+		Joins("Team").
+		Where("players.deleted_at IS NULL")
 
-	tx.Model(&model.Player{}).Count(&total)
+	// Count using a separate session to avoid shared state
+	tx.Session(&gorm.Session{}).Count(&total)
 
 	offset := utils.CalculatePageSkip(req.Page, req.PageSize)
+
 	sortBy := "name"
 	if req.SortBy != "" {
 		sortBy = req.SortBy
@@ -65,9 +72,11 @@ func (r *Repository) List(ctx context.Context, req schema.RequestPlayerList) ([]
 		sortOrder = req.SortOrder
 	}
 
-	tx = tx.Offset(offset).Limit(req.PageSize)
-	tx = tx.Order(fmt.Sprintf("%s %s", sortBy, sortOrder))
-	tx.Find(&players)
+	tx.Session(&gorm.Session{}).
+		Offset(offset).
+		Limit(req.PageSize).
+		Order(fmt.Sprintf("players.%s %s", sortBy, sortOrder)).
+		Find(&players)
 
 	return players, total
 }
@@ -81,4 +90,17 @@ func (r *Repository) Delete(ctx context.Context, id string) error {
 		Model(&model.Player{}).
 		Where("id = ?", id).
 		Update("deleted_at", "NOW()").Error
+}
+
+func (r *Repository) GetTeamName(ctx context.Context, teamID string) (string, error) {
+	var teamName string
+	err := r.DB.GetTransaction(ctx).
+		Model(&model.Team{}).
+		Select("name").
+		Where("id = ? AND deleted_at IS NULL", teamID).
+		First(&teamName).Error
+	if err != nil {
+		return "", err
+	}
+	return teamName, nil
 }

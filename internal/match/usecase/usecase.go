@@ -29,6 +29,7 @@ type IUseCase interface {
 	List(context.Context, *schema.RequestMatchList) wrapper.JSONResult
 	Update(context.Context, *schema.RequestMatchUpdate) wrapper.JSONResult
 	Delete(context.Context, *schema.RequestMatchDelete) wrapper.JSONResult
+	UpdateStatus(ctx context.Context, req *schema.RequestMatchUpdateStatus) wrapper.JSONResult
 }
 
 func NewUseCase(uc UseCase) IUseCase {
@@ -42,11 +43,16 @@ func NewUseCase(uc UseCase) IUseCase {
 func (u *UseCase) Create(ctx context.Context, req *schema.RequestMatchCreate) wrapper.JSONResult {
 	l := u.Logger.With(zap.String("usecase", "Create"))
 
+	matchAt, err := time.Parse("2006-01-02 15:04", req.MatchDate+" "+req.MatchTime)
+	if err != nil {
+		return wrapper.ResponseFailed(http.StatusBadRequest, contract.StatusCodeValidationFailed, "Invalid match_date or match_time format", nil)
+	}
+
 	now := time.Now()
 	m := &model.Match{
 		ID:         utils.GenerateUUID(),
-		MatchDate:  req.MatchDate,
-		MatchTime:  req.MatchTime,
+		MatchDate:  matchAt,
+		MatchTime:  matchAt,
 		HomeTeamID: req.HomeTeamID,
 		AwayTeamID: req.AwayTeamID,
 		HomeScore:  0,
@@ -77,8 +83,8 @@ func (u *UseCase) Get(ctx context.Context, req *schema.RequestMatchGet) wrapper.
 
 	return wrapper.ResponseSuccess(http.StatusOK, schema.ResponseMatchGet{
 		ID:         m.ID,
-		MatchDate:  m.MatchDate,
-		MatchTime:  m.MatchTime,
+		MatchDate:  m.MatchDate.Format("2006-01-02"),
+		MatchTime:  m.MatchTime.Format("15:04"),
 		HomeTeamID: m.HomeTeamID,
 		AwayTeamID: m.AwayTeamID,
 		HomeScore:  m.HomeScore,
@@ -97,7 +103,7 @@ func (u *UseCase) List(ctx context.Context, req *schema.RequestMatchList) wrappe
 	for i, mm := range matches {
 		items[i] = schema.ResponseMatchItem{
 			ID:         mm.ID,
-			MatchDate:  mm.MatchDate,
+			MatchDate:  mm.MatchDate.Format("2006-01-02"),
 			HomeTeamID: mm.HomeTeamID,
 			AwayTeamID: mm.AwayTeamID,
 			Status:     string(mm.Status),
@@ -117,8 +123,13 @@ func (u *UseCase) Update(ctx context.Context, req *schema.RequestMatchUpdate) wr
 		return wrapper.ResponseFailed(http.StatusNotFound, contract.CreateStatusCode("MATCH_NOT_FOUND"), "Match not found", nil)
 	}
 
-	m.MatchDate = req.MatchDate
-	m.MatchTime = req.MatchTime
+	matchAt, err := time.Parse("2006-01-02 15:04", req.MatchDate+" "+req.MatchTime)
+	if err != nil {
+		return wrapper.ResponseFailed(http.StatusBadRequest, contract.StatusCodeValidationFailed, "Invalid match_date or match_time format", nil)
+	}
+
+	m.MatchDate = matchAt
+	m.MatchTime = matchAt
 	m.HomeTeamID = req.HomeTeamID
 	m.AwayTeamID = req.AwayTeamID
 	if req.Status != "" {
@@ -154,4 +165,22 @@ func (u *UseCase) Delete(ctx context.Context, req *schema.RequestMatchDelete) wr
 
 	l.Debug("match deleted", zap.String("id", req.ID))
 	return wrapper.ResponseSuccess(http.StatusOK, schema.ResponseMatchDelete{})
+}
+
+func (u *UseCase) UpdateStatus(ctx context.Context, req *schema.RequestMatchUpdateStatus) wrapper.JSONResult {
+	l := u.Logger.With(zap.String("usecase", "UpdateStatus"))
+
+	m := u.Repository.Get(ctx, req.ID)
+	if m == nil {
+		l.Error("match not found", zap.String("id", req.ID))
+		return wrapper.ResponseFailed(http.StatusNotFound, contract.CreateStatusCode("MATCH_NOT_FOUND"), "Match not found", nil)
+	}
+
+	if err := u.Repository.UpdateStatus(ctx, req.ID, req.Status); err != nil {
+		l.Error("failed to update match status", zap.Error(err))
+		return wrapper.ResponseFailed(500, contract.StatusCodeInternalServerError, "Failed to update match status", nil)
+	}
+
+	l.Debug("match status updated", zap.String("id", req.ID), zap.String("status", req.Status))
+	return wrapper.ResponseSuccess(http.StatusOK, schema.ResponseMatchUpdateStatus{ID: req.ID})
 }

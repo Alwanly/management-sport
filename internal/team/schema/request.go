@@ -10,34 +10,34 @@ type RequestTeamCreate struct {
 	FoundedYear  int                      `form:"founded_year" validate:"omitempty,min=1800,max=2100"`
 	Address      string                   `form:"address" validate:"omitempty,max=500"`
 	City         string                   `form:"city" validate:"omitempty,max=255"`
-	AuthUserData *middleware.AuthUserData `form:"-"`
+	AuthUserData *middleware.AuthUserData `swaggerignore:"true"`
 }
 
 type RequestTeamGet struct {
-	ID           string `uri:"id" validate:"required"`
-	AuthUserData *middleware.AuthUserData
+	ID           string                   `uri:"id" validate:"required"`
+	AuthUserData *middleware.AuthUserData `swaggerignore:"true"`
 }
 
 type RequestTeamList struct {
-	Page         int    `form:"page" validate:"required,min=1"`
-	PageSize     int    `form:"page_size" validate:"required,min=1,max=100"`
-	SortBy       string `form:"sort_by" validate:"omitempty,oneof=name city founded_year"`
-	SortOrder    string `form:"sort_order" validate:"omitempty,oneof=asc desc"`
-	AuthUserData *middleware.AuthUserData
+	Page         int                      `form:"page" validate:"required,min=1"`
+	PageSize     int                      `form:"page_size" validate:"required,min=1,max=100"`
+	SortBy       string                   `form:"sort_by" validate:"omitempty,oneof=name city founded_year"`
+	SortOrder    string                   `form:"sort_order" validate:"omitempty,oneof=asc desc"`
+	AuthUserData *middleware.AuthUserData `swaggerignore:"true"`
 }
 
 type RequestTeamUpdate struct {
-	ID           string                   `uri:"id" validate:"required"`
+	ID           string                   `uri:"id" validate:"required" swaggerignore:"true"`
 	Name         string                   `form:"name" validate:"required,min=3,max=255"`
 	FoundedYear  int                      `form:"founded_year" validate:"omitempty,min=1800,max=2100"`
 	Address      string                   `form:"address" validate:"omitempty,max=500"`
 	City         string                   `form:"city" validate:"omitempty,max=255"`
-	AuthUserData *middleware.AuthUserData `form:"-"`
+	AuthUserData *middleware.AuthUserData `swaggerignore:"true"`
 }
 
 type RequestTeamDelete struct {
-	ID           string `uri:"id" validate:"required"`
-	AuthUserData *middleware.AuthUserData
+	ID           string                   `uri:"id" validate:"required"`
+	AuthUserData *middleware.AuthUserData `swaggerignore:"true"`
 }
 
 func (r *RequestTeamList) ToResponse(teams []model.Team) []ResponseTeamItem {

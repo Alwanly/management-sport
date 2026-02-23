@@ -4,6 +4,8 @@ import (
 	"github.com/Alwanly/management-sport/internal/goal/repository"
 	"github.com/Alwanly/management-sport/internal/goal/schema"
 	"github.com/Alwanly/management-sport/internal/goal/usecase"
+	matchRepository "github.com/Alwanly/management-sport/internal/match/repository"
+	playerRepository "github.com/Alwanly/management-sport/internal/player/repository"
 	"github.com/Alwanly/management-sport/pkg/binding"
 	"github.com/Alwanly/management-sport/pkg/deps"
 	"github.com/Alwanly/management-sport/pkg/logger"
@@ -25,10 +27,20 @@ func NewHandler(d *deps.App) *Handler {
 		DB:    d.DB,
 		Redis: d.Redis,
 	})
+	matchRepo := matchRepository.NewRepository(matchRepository.Repository{
+		DB:    d.DB,
+		Redis: d.Redis,
+	})
+	playerRepo := playerRepository.NewRepository(playerRepository.Repository{
+		DB:    d.DB,
+		Redis: d.Redis,
+	})
 	usecase := usecase.NewUseCase(usecase.UseCase{
-		Config:     d.Config,
-		Logger:     d.Logger,
-		Repository: repository,
+		Config:           d.Config,
+		Logger:           d.Logger,
+		Repository:       repository,
+		MatchRepository:  matchRepo,
+		PlayerRepository: playerRepo,
 	})
 	handler := &Handler{
 		Logger:    d.Logger,

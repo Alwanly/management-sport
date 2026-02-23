@@ -24,6 +24,7 @@ type IRepository interface {
 	List(context.Context, schema.RequestMatchList) ([]model.Match, int64)
 	Update(context.Context, *model.Match) error
 	Delete(context.Context, string) error
+	UpdateStatus(ctx context.Context, id string, status string) error
 }
 
 func NewRepository(r Repository) IRepository {
@@ -76,4 +77,8 @@ func (r *Repository) Update(ctx context.Context, m *model.Match) error {
 
 func (r *Repository) Delete(ctx context.Context, id string) error {
 	return r.DB.GetTransaction(ctx).Where("id = ?", id).Delete(&model.Match{}).Error
+}
+
+func (r *Repository) UpdateStatus(ctx context.Context, id string, status string) error {
+	return r.DB.GetTransaction(ctx).Model(&model.Match{}).Where("id = ?", id).Update("status", status).Error
 }

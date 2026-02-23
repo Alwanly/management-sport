@@ -129,6 +129,11 @@
         },
         "/auth/v1/admin/login": {
             "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Authenticate admin user and return JWT token",
                 "consumes": [
                     "application/json"
@@ -199,6 +204,11 @@
         },
         "/auth/v1/login": {
             "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Authenticate user and return JWT token",
                 "consumes": [
                     "application/json"
@@ -263,6 +273,11 @@
         },
         "/auth/v1/register": {
             "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Create a new user account with username and password",
                 "consumes": [
                     "application/json"
@@ -318,306 +333,6 @@
                     },
                     "500": {
                         "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/wrapper.JSONResult"
-                        }
-                    }
-                }
-            }
-        },
-        "/books/v1": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "List books with pagination",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Books"
-                ],
-                "summary": "List books",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Page number",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page size",
-                        "name": "page_size",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Sort by field",
-                        "name": "sort_by",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Sort order (asc|desc)",
-                        "name": "sort_order",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/wrapper.JSONResult"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/schema.ResponseBookGet"
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/wrapper.JSONResult"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Create a new book",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Books"
-                ],
-                "summary": "Create a new book",
-                "parameters": [
-                    {
-                        "description": "Create book",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/schema.RequestBookCreate"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/wrapper.JSONResult"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/schema.ResponseBookCreate"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/wrapper.JSONResult"
-                        }
-                    }
-                }
-            }
-        },
-        "/books/v1/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Retrieve a single book",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Books"
-                ],
-                "summary": "Get book by id",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Book ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/wrapper.JSONResult"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/schema.ResponseBookGet"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/wrapper.JSONResult"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Update a book's information",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Books"
-                ],
-                "summary": "Update a book",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Book ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Update book",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/schema.RequestBookUpdate"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/wrapper.JSONResult"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/schema.ResponseBookUpdate"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/wrapper.JSONResult"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Delete a book",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Books"
-                ],
-                "summary": "Delete a book",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Book ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/wrapper.JSONResult"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/schema.ResponseBookDelete"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/wrapper.JSONResult"
                         }
@@ -1512,6 +1227,61 @@
                 }
             }
         },
+        "/reports/v1/matches": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns finished matches with schedule, teams, scores, and results",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Reports"
+                ],
+                "summary": "Match report",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/wrapper.JSONResult"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/schema.ResponseMatchReportItem"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/wrapper.JSONResult"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/wrapper.JSONResult"
+                        }
+                    }
+                }
+            }
+        },
         "/reports/v1/team-goals": {
             "get": {
                 "security": [
@@ -1634,7 +1404,9 @@
                         }
                     }
                 }
-            },
+            }
+        },
+        "/teams/v1/": {
             "post": {
                 "security": [
                     {
@@ -1643,7 +1415,7 @@
                 ],
                 "description": "Create a new team (admin only)",
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -1654,13 +1426,35 @@
                 "summary": "Create a new team",
                 "parameters": [
                     {
-                        "description": "Create team",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/schema.RequestTeamCreate"
-                        }
+                        "type": "string",
+                        "description": "Team name",
+                        "name": "name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Founded year",
+                        "name": "founded_year",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Address",
+                        "name": "address",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "City",
+                        "name": "city",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Team logo (JPG or PNG, max 5MB)",
+                        "name": "logo",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -1753,7 +1547,7 @@
                 ],
                 "description": "Update a team's information (admin only)",
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -1771,13 +1565,35 @@
                         "required": true
                     },
                     {
-                        "description": "Update team",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/schema.RequestTeamUpdate"
-                        }
+                        "type": "string",
+                        "description": "Team name",
+                        "name": "name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Founded year",
+                        "name": "founded_year",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Address",
+                        "name": "address",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "City",
+                        "name": "city",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Team logo (JPG or PNG, max 5MB)",
+                        "name": "logo",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -1884,13 +1700,27 @@
                 "StatusCodeSequenceError"
             ]
         },
-        "middleware.AuthUserData": {
+        "schema.MatchScoreInfo": {
             "type": "object",
             "properties": {
-                "role": {
+                "away": {
+                    "type": "integer"
+                },
+                "home": {
+                    "type": "integer"
+                }
+            }
+        },
+        "schema.MatchTeamInfo": {
+            "type": "object",
+            "properties": {
+                "id": {
                     "type": "string"
                 },
-                "userId": {
+                "logo_url": {
+                    "type": "string"
+                },
+                "name": {
                     "type": "string"
                 }
             }
@@ -1913,50 +1743,6 @@
                 }
             }
         },
-        "schema.RequestBookCreate": {
-            "type": "object",
-            "required": [
-                "author",
-                "title"
-            ],
-            "properties": {
-                "authUserData": {
-                    "$ref": "#/definitions/middleware.AuthUserData"
-                },
-                "author": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string",
-                    "maxLength": 255,
-                    "minLength": 3
-                }
-            }
-        },
-        "schema.RequestBookUpdate": {
-            "type": "object",
-            "required": [
-                "author",
-                "id",
-                "title"
-            ],
-            "properties": {
-                "authUserData": {
-                    "$ref": "#/definitions/middleware.AuthUserData"
-                },
-                "author": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string",
-                    "maxLength": 255,
-                    "minLength": 3
-                }
-            }
-        },
         "schema.RequestGoalCreate": {
             "type": "object",
             "required": [
@@ -1965,9 +1751,6 @@
                 "player_id"
             ],
             "properties": {
-                "authUserData": {
-                    "$ref": "#/definitions/middleware.AuthUserData"
-                },
                 "match_id": {
                     "type": "string"
                 },
@@ -2007,9 +1790,6 @@
                 "match_time"
             ],
             "properties": {
-                "authUserData": {
-                    "$ref": "#/definitions/middleware.AuthUserData"
-                },
                 "away_team_id": {
                     "type": "string"
                 },
@@ -2029,14 +1809,10 @@
             "required": [
                 "away_team_id",
                 "home_team_id",
-                "id",
                 "match_date",
                 "match_time"
             ],
             "properties": {
-                "authUserData": {
-                    "$ref": "#/definitions/middleware.AuthUserData"
-                },
                 "away_score": {
                     "type": "integer",
                     "minimum": 0
@@ -2049,9 +1825,6 @@
                     "minimum": 0
                 },
                 "home_team_id": {
-                    "type": "string"
-                },
-                "id": {
                     "type": "string"
                 },
                 "match_date": {
@@ -2079,9 +1852,6 @@
                 "team_id"
             ],
             "properties": {
-                "authUserData": {
-                    "$ref": "#/definitions/middleware.AuthUserData"
-                },
                 "height_cm": {
                     "type": "integer",
                     "minimum": 0
@@ -2123,21 +1893,14 @@
         "schema.RequestPlayerUpdate": {
             "type": "object",
             "required": [
-                "id",
                 "name",
                 "position",
                 "shirt_number"
             ],
             "properties": {
-                "authUserData": {
-                    "$ref": "#/definitions/middleware.AuthUserData"
-                },
                 "height_cm": {
                     "type": "integer",
                     "minimum": 0
-                },
-                "id": {
-                    "type": "string"
                 },
                 "name": {
                     "type": "string",
@@ -2176,68 +1939,6 @@
                     "minLength": 6
                 },
                 "username": {
-                    "type": "string",
-                    "maxLength": 255,
-                    "minLength": 3
-                }
-            }
-        },
-        "schema.RequestTeamCreate": {
-            "type": "object",
-            "required": [
-                "name"
-            ],
-            "properties": {
-                "-": {
-                    "$ref": "#/definitions/middleware.AuthUserData"
-                },
-                "address": {
-                    "type": "string",
-                    "maxLength": 500
-                },
-                "city": {
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "founded_year": {
-                    "type": "integer",
-                    "maximum": 2100,
-                    "minimum": 1800
-                },
-                "name": {
-                    "type": "string",
-                    "maxLength": 255,
-                    "minLength": 3
-                }
-            }
-        },
-        "schema.RequestTeamUpdate": {
-            "type": "object",
-            "required": [
-                "id",
-                "name"
-            ],
-            "properties": {
-                "-": {
-                    "$ref": "#/definitions/middleware.AuthUserData"
-                },
-                "address": {
-                    "type": "string",
-                    "maxLength": 500
-                },
-                "city": {
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "founded_year": {
-                    "type": "integer",
-                    "maximum": 2100,
-                    "minimum": 1800
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
                     "type": "string",
                     "maxLength": 255,
                     "minLength": 3
@@ -2312,39 +2013,6 @@
                     "type": "string"
                 },
                 "user_role": {
-                    "type": "string"
-                }
-            }
-        },
-        "schema.ResponseBookCreate": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string"
-                }
-            }
-        },
-        "schema.ResponseBookDelete": {
-            "type": "object"
-        },
-        "schema.ResponseBookGet": {
-            "type": "object",
-            "properties": {
-                "author": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                }
-            }
-        },
-        "schema.ResponseBookUpdate": {
-            "type": "object",
-            "properties": {
-                "id": {
                     "type": "string"
                 }
             }
@@ -2479,6 +2147,35 @@
                 }
             }
         },
+        "schema.ResponseMatchReportItem": {
+            "type": "object",
+            "properties": {
+                "away_team": {
+                    "$ref": "#/definitions/schema.MatchTeamInfo"
+                },
+                "final_score": {
+                    "$ref": "#/definitions/schema.MatchScoreInfo"
+                },
+                "home_team": {
+                    "$ref": "#/definitions/schema.MatchTeamInfo"
+                },
+                "match_date": {
+                    "type": "string"
+                },
+                "match_id": {
+                    "type": "string"
+                },
+                "match_time": {
+                    "type": "string"
+                },
+                "result": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "schema.ResponseMatchUpdate": {
             "type": "object",
             "properties": {
@@ -2519,6 +2216,9 @@
                 "team_id": {
                     "type": "string"
                 },
+                "team_name": {
+                    "type": "string"
+                },
                 "weight_kg": {
                     "type": "integer"
                 }
@@ -2540,6 +2240,9 @@
                     "type": "integer"
                 },
                 "team_id": {
+                    "type": "string"
+                },
+                "team_name": {
                     "type": "string"
                 }
             }

@@ -18,11 +18,20 @@ definitions:
     - StatusCodeUserOrPasswordInvalid
     - StatusCodeInternalServerError
     - StatusCodeSequenceError
-  middleware.AuthUserData:
+  schema.MatchScoreInfo:
     properties:
-      role:
+      away:
+        type: integer
+      home:
+        type: integer
+    type: object
+  schema.MatchTeamInfo:
+    properties:
+      id:
         type: string
-      userId:
+      logo_url:
+        type: string
+      name:
         type: string
     type: object
   schema.RequestAdminLogin:
@@ -38,41 +47,8 @@ definitions:
     - password
     - username
     type: object
-  schema.RequestBookCreate:
-    properties:
-      authUserData:
-        $ref: '#/definitions/middleware.AuthUserData'
-      author:
-        type: string
-      title:
-        maxLength: 255
-        minLength: 3
-        type: string
-    required:
-    - author
-    - title
-    type: object
-  schema.RequestBookUpdate:
-    properties:
-      authUserData:
-        $ref: '#/definitions/middleware.AuthUserData'
-      author:
-        type: string
-      id:
-        type: string
-      title:
-        maxLength: 255
-        minLength: 3
-        type: string
-    required:
-    - author
-    - id
-    - title
-    type: object
   schema.RequestGoalCreate:
     properties:
-      authUserData:
-        $ref: '#/definitions/middleware.AuthUserData'
       match_id:
         type: string
       minute_scored:
@@ -100,8 +76,6 @@ definitions:
     type: object
   schema.RequestMatchCreate:
     properties:
-      authUserData:
-        $ref: '#/definitions/middleware.AuthUserData'
       away_team_id:
         type: string
       home_team_id:
@@ -118,8 +92,6 @@ definitions:
     type: object
   schema.RequestMatchUpdate:
     properties:
-      authUserData:
-        $ref: '#/definitions/middleware.AuthUserData'
       away_score:
         minimum: 0
         type: integer
@@ -129,8 +101,6 @@ definitions:
         minimum: 0
         type: integer
       home_team_id:
-        type: string
-      id:
         type: string
       match_date:
         type: string
@@ -145,14 +115,11 @@ definitions:
     required:
     - away_team_id
     - home_team_id
-    - id
     - match_date
     - match_time
     type: object
   schema.RequestPlayerCreate:
     properties:
-      authUserData:
-        $ref: '#/definitions/middleware.AuthUserData'
       height_cm:
         minimum: 0
         type: integer
@@ -190,13 +157,9 @@ definitions:
     type: object
   schema.RequestPlayerUpdate:
     properties:
-      authUserData:
-        $ref: '#/definitions/middleware.AuthUserData'
       height_cm:
         minimum: 0
         type: integer
-      id:
-        type: string
       name:
         maxLength: 255
         minLength: 1
@@ -216,7 +179,6 @@ definitions:
         minimum: 0
         type: integer
     required:
-    - id
     - name
     - position
     - shirt_number
@@ -233,51 +195,6 @@ definitions:
     required:
     - password
     - username
-    type: object
-  schema.RequestTeamCreate:
-    properties:
-      '-':
-        $ref: '#/definitions/middleware.AuthUserData'
-      address:
-        maxLength: 500
-        type: string
-      city:
-        maxLength: 255
-        type: string
-      founded_year:
-        maximum: 2100
-        minimum: 1800
-        type: integer
-      name:
-        maxLength: 255
-        minLength: 3
-        type: string
-    required:
-    - name
-    type: object
-  schema.RequestTeamUpdate:
-    properties:
-      '-':
-        $ref: '#/definitions/middleware.AuthUserData'
-      address:
-        maxLength: 500
-        type: string
-      city:
-        maxLength: 255
-        type: string
-      founded_year:
-        maximum: 2100
-        minimum: 1800
-        type: integer
-      id:
-        type: string
-      name:
-        maxLength: 255
-        minLength: 3
-        type: string
-    required:
-    - id
-    - name
     type: object
   schema.ResponseAdminLogin:
     properties:
@@ -324,27 +241,6 @@ definitions:
       user_id:
         type: string
       user_role:
-        type: string
-    type: object
-  schema.ResponseBookCreate:
-    properties:
-      id:
-        type: string
-    type: object
-  schema.ResponseBookDelete:
-    type: object
-  schema.ResponseBookGet:
-    properties:
-      author:
-        type: string
-      id:
-        type: string
-      title:
-        type: string
-    type: object
-  schema.ResponseBookUpdate:
-    properties:
-      id:
         type: string
     type: object
   schema.ResponseGoalCreate:
@@ -431,6 +327,25 @@ definitions:
       status:
         type: string
     type: object
+  schema.ResponseMatchReportItem:
+    properties:
+      away_team:
+        $ref: '#/definitions/schema.MatchTeamInfo'
+      final_score:
+        $ref: '#/definitions/schema.MatchScoreInfo'
+      home_team:
+        $ref: '#/definitions/schema.MatchTeamInfo'
+      match_date:
+        type: string
+      match_id:
+        type: string
+      match_time:
+        type: string
+      result:
+        type: string
+      status:
+        type: string
+    type: object
   schema.ResponseMatchUpdate:
     properties:
       id:
@@ -457,6 +372,8 @@ definitions:
         type: integer
       team_id:
         type: string
+      team_name:
+        type: string
       weight_kg:
         type: integer
     type: object
@@ -471,6 +388,8 @@ definitions:
       shirt_number:
         type: integer
       team_id:
+        type: string
+      team_name:
         type: string
     type: object
   schema.ResponsePlayerUpdate:
@@ -670,6 +589,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BasicAuth: []
       summary: Admin login
       tags:
       - Authentication
@@ -709,6 +630,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BasicAuth: []
       summary: User login
       tags:
       - Authentication
@@ -748,186 +671,11 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BasicAuth: []
       summary: Register new user
       tags:
       - Authentication
-  /books/v1:
-    get:
-      consumes:
-      - application/json
-      description: List books with pagination
-      parameters:
-      - description: Page number
-        in: query
-        name: page
-        type: integer
-      - description: Page size
-        in: query
-        name: page_size
-        type: integer
-      - description: Sort by field
-        in: query
-        name: sort_by
-        type: string
-      - description: Sort order (asc|desc)
-        in: query
-        name: sort_order
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/wrapper.JSONResult'
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/schema.ResponseBookGet'
-                  type: array
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/wrapper.JSONResult'
-      security:
-      - BearerAuth: []
-      summary: List books
-      tags:
-      - Books
-    post:
-      consumes:
-      - application/json
-      description: Create a new book
-      parameters:
-      - description: Create book
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/schema.RequestBookCreate'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            allOf:
-            - $ref: '#/definitions/wrapper.JSONResult'
-            - properties:
-                data:
-                  $ref: '#/definitions/schema.ResponseBookCreate'
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/wrapper.JSONResult'
-      security:
-      - BearerAuth: []
-      summary: Create a new book
-      tags:
-      - Books
-  /books/v1/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete a book
-      parameters:
-      - description: Book ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/wrapper.JSONResult'
-            - properties:
-                data:
-                  $ref: '#/definitions/schema.ResponseBookDelete'
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/wrapper.JSONResult'
-      security:
-      - BearerAuth: []
-      summary: Delete a book
-      tags:
-      - Books
-    get:
-      consumes:
-      - application/json
-      description: Retrieve a single book
-      parameters:
-      - description: Book ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/wrapper.JSONResult'
-            - properties:
-                data:
-                  $ref: '#/definitions/schema.ResponseBookGet'
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/wrapper.JSONResult'
-      security:
-      - BearerAuth: []
-      summary: Get book by id
-      tags:
-      - Books
-    put:
-      consumes:
-      - application/json
-      description: Update a book's information
-      parameters:
-      - description: Book ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Update book
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/schema.RequestBookUpdate'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/wrapper.JSONResult'
-            - properties:
-                data:
-                  $ref: '#/definitions/schema.ResponseBookUpdate'
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/wrapper.JSONResult'
-      security:
-      - BearerAuth: []
-      summary: Update a book
-      tags:
-      - Books
   /goals/v1:
     get:
       consumes:
@@ -1450,6 +1198,38 @@ paths:
       summary: Goals per player
       tags:
       - Reports
+  /reports/v1/matches:
+    get:
+      consumes:
+      - application/json
+      description: Returns finished matches with schedule, teams, scores, and results
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/wrapper.JSONResult'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/schema.ResponseMatchReportItem'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/wrapper.JSONResult'
+      security:
+      - BearerAuth: []
+      summary: Match report
+      tags:
+      - Reports
   /reports/v1/team-goals:
     get:
       consumes:
@@ -1523,17 +1303,33 @@ paths:
       summary: List teams
       tags:
       - Teams
+  /teams/v1/:
     post:
       consumes:
-      - application/json
+      - multipart/form-data
       description: Create a new team (admin only)
       parameters:
-      - description: Create team
-        in: body
-        name: request
+      - description: Team name
+        in: formData
+        name: name
         required: true
-        schema:
-          $ref: '#/definitions/schema.RequestTeamCreate'
+        type: string
+      - description: Founded year
+        in: formData
+        name: founded_year
+        type: integer
+      - description: Address
+        in: formData
+        name: address
+        type: string
+      - description: City
+        in: formData
+        name: city
+        type: string
+      - description: Team logo (JPG or PNG, max 5MB)
+        in: formData
+        name: logo
+        type: file
       produces:
       - application/json
       responses:
@@ -1620,7 +1416,7 @@ paths:
       - Teams
     put:
       consumes:
-      - application/json
+      - multipart/form-data
       description: Update a team's information (admin only)
       parameters:
       - description: Team ID
@@ -1628,12 +1424,27 @@ paths:
         name: id
         required: true
         type: string
-      - description: Update team
-        in: body
-        name: request
+      - description: Team name
+        in: formData
+        name: name
         required: true
-        schema:
-          $ref: '#/definitions/schema.RequestTeamUpdate'
+        type: string
+      - description: Founded year
+        in: formData
+        name: founded_year
+        type: integer
+      - description: Address
+        in: formData
+        name: address
+        type: string
+      - description: City
+        in: formData
+        name: city
+        type: string
+      - description: Team logo (JPG or PNG, max 5MB)
+        in: formData
+        name: logo
+        type: file
       produces:
       - application/json
       responses:

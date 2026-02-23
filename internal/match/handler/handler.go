@@ -4,6 +4,7 @@ import (
 	"github.com/Alwanly/management-sport/internal/match/repository"
 	"github.com/Alwanly/management-sport/internal/match/schema"
 	"github.com/Alwanly/management-sport/internal/match/usecase"
+	"github.com/Alwanly/management-sport/model"
 	"github.com/Alwanly/management-sport/pkg/binding"
 	"github.com/Alwanly/management-sport/pkg/deps"
 	"github.com/Alwanly/management-sport/pkg/logger"
@@ -48,6 +49,8 @@ func NewHandler(d *deps.App) *Handler {
 	admin.POST("/", handler.Create)
 	admin.PUT(":id", handler.Update)
 	admin.DELETE(":id", handler.Delete)
+	admin.PATCH(":id/status/ongoing", handler.UpdateStatusOngoing)
+	admin.PATCH(":id/status/finished", handler.UpdateStatusFinished)
 
 	return handler
 }
@@ -69,12 +72,14 @@ func (h *Handler) Create(c *gin.Context) {
 	model := &schema.RequestMatchCreate{}
 	if err := binding.BindModel(l, c, model, binding.BindFromBody()); err != nil {
 		perr := err.(*binding.ModelBindingError)
+		l.Error("model binding failed", zap.Error(err))
 		c.JSON(perr.Code, perr.ResponseBody)
 		return
 	}
 
 	if err := validator.ValidateModel(l, h.Validator, model); err != nil {
 		perr := err.(*validator.ModelValidationError)
+		l.Error("validation failed", zap.Error(err))
 		c.JSON(perr.Code, perr.ResponseBody)
 		return
 	}
@@ -213,5 +218,71 @@ func (h *Handler) Delete(c *gin.Context) {
 	}
 
 	response := h.UseCase.Delete(c.Request.Context(), model)
+	c.JSON(response.Code, response)
+}
+
+// UpdateStatus ongoing godoc
+// @Summary      Update match status
+// @Description  Update the status of a match (admin only)
+// @Tags         Matches
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "Match ID"
+// @Success      200 {object} wrapper.JSONResult{data=schema.ResponseMatchUpdateStatus}
+// @Failure      400 {object} wrapper.JSONResult
+// @Security     BearerAuth
+// @Router       /matches/v1/{id}/status/ongoing [patch]
+func (h *Handler) UpdateStatusOngoing(c *gin.Context) {
+	l := logger.WithID(h.Logger, ContextName, "UpdateStatus")
+
+	model := &schema.RequestMatchUpdateStatus{
+		Status: string(model.MatchStatusOngoing),
+	}
+	if err := binding.BindModel(l, c, model, binding.BindFromParams()); err != nil {
+		perr := err.(*binding.ModelBindingError)
+		c.JSON(perr.Code, perr.ResponseBody)
+		return
+	}
+
+	if err := validator.ValidateModel(l, h.Validator, model); err != nil {
+		perr := err.(*validator.ModelValidationError)
+		c.JSON(perr.Code, perr.ResponseBody)
+		return
+	}
+
+	response := h.UseCase.UpdateStatus(c.Request.Context(), model)
+	c.JSON(response.Code, response)
+}
+
+// UpdateStatus finished godoc
+// @Summary      Update match status to finished
+// @Description  Update the status of a match to finished (admin only)
+// @Tags         Matches
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "Match ID"
+// @Success      200 {object} wrapper.JSONResult{data=schema.ResponseMatchUpdateStatus}
+// @Failure      400 {object} wrapper.JSONResult
+// @Security     BearerAuth
+// @Router       /matches/v1/{id}/status/finished [patch]
+func (h *Handler) UpdateStatusFinished(c *gin.Context) {
+	l := logger.WithID(h.Logger, ContextName, "UpdateStatus")
+
+	model := &schema.RequestMatchUpdateStatus{
+		Status: string(model.MatchStatusFinished),
+	}
+	if err := binding.BindModel(l, c, model, binding.BindFromParams()); err != nil {
+		perr := err.(*binding.ModelBindingError)
+		c.JSON(perr.Code, perr.ResponseBody)
+		return
+	}
+
+	if err := validator.ValidateModel(l, h.Validator, model); err != nil {
+		perr := err.(*validator.ModelValidationError)
+		c.JSON(perr.Code, perr.ResponseBody)
+		return
+	}
+
+	response := h.UseCase.UpdateStatus(c.Request.Context(), model)
 	c.JSON(response.Code, response)
 }

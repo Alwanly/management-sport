@@ -12,6 +12,7 @@ type ResponsePlayerGet struct {
 	WeightKG    int    `json:"weight_kg"`
 	Position    string `json:"position"`
 	ShirtNumber int    `json:"shirt_number"`
+	TeamName    string `json:"team_name"`
 }
 
 type ResponsePlayerItem struct {
@@ -20,6 +21,7 @@ type ResponsePlayerItem struct {
 	Name        string `json:"name"`
 	Position    string `json:"position"`
 	ShirtNumber int    `json:"shirt_number"`
+	TeamName    string `json:"team_name"`
 }
 
 type ResponsePlayerUpdate struct {

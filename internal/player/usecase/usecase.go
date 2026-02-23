@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/Alwanly/management-sport/config"
@@ -57,6 +58,15 @@ func (u *UseCase) Create(ctx context.Context, req *schema.RequestPlayerCreate) w
 	}
 
 	if err := u.Repository.Create(ctx, player); err != nil {
+		errMsg := err.Error()
+		if strings.Contains(errMsg, "foreign key constraint") || strings.Contains(strings.ToLower(errMsg), "foreign key") {
+			l.Error("team not found for the player", zap.String("team_id", req.TeamID), zap.Error(err))
+			return wrapper.ResponseFailed(http.StatusBadRequest, contract.CreateStatusCode("TEAM_NOT_FOUND"), "Team not found for the player", nil)
+		}
+		if strings.Contains(errMsg, "UNIQUE constraint failed") || strings.Contains(strings.ToLower(errMsg), "unique constraint") || strings.Contains(strings.ToLower(errMsg), "duplicate") {
+			l.Error("shirt number already exists in the team", zap.String("team_id", req.TeamID), zap.Int("shirt_number", req.ShirtNumber), zap.Error(err))
+			return wrapper.ResponseFailed(http.StatusBadRequest, contract.CreateStatusCode("SHIRT_NUMBER_ALREADY_EXISTS"), "Shirt number already exists in the team", nil)
+		}
 		l.Error("failed to create a player", zap.Error(err))
 		return wrapper.ResponseFailed(500, contract.StatusCodeInternalServerError, "Failed to create a player", nil)
 	}
@@ -73,6 +83,11 @@ func (u *UseCase) Get(ctx context.Context, req *schema.RequestPlayerGet) wrapper
 		l.Error("player not found", zap.String("id", req.ID))
 		return wrapper.ResponseFailed(http.StatusNotFound, contract.CreateStatusCode("PLAYER_NOT_FOUND"), "Player not found", nil)
 	}
+	teamName, err := u.Repository.GetTeamName(ctx, p.TeamID)
+	if err != nil {
+		l.Error("failed to get team name for the player", zap.String("team_id", p.TeamID), zap.Error(err))
+		return wrapper.ResponseFailed(500, contract.StatusCodeInternalServerError, "Failed to get team name for the player", nil)
+	}
 
 	return wrapper.ResponseSuccess(http.StatusOK, schema.ResponsePlayerGet{
 		ID:          p.ID,
@@ -82,6 +97,7 @@ func (u *UseCase) Get(ctx context.Context, req *schema.RequestPlayerGet) wrapper
 		WeightKG:    p.WeightKG,
 		Position:    string(p.Position),
 		ShirtNumber: p.ShirtNumber,
+		TeamName:    teamName,
 	})
 }
 
@@ -99,6 +115,7 @@ func (u *UseCase) List(ctx context.Context, req *schema.RequestPlayerList) wrapp
 			Name:        p.Name,
 			Position:    string(p.Position),
 			ShirtNumber: p.ShirtNumber,
+			TeamName:    p.Team.Name,
 		}
 	}
 
